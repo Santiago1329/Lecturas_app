@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "104633790371",
+    "project_id": "lecturas-app-805ec",
+    "storage_bucket": "lecturas-app-805ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104633790371:android:9d4a31e57d581d0cdbf416",
+        "android_client_info": {
+          "package_name": "com.example.rutas_lectura_demo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtl789lvbKqstFJb_-fubTM35VS4VZu6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
