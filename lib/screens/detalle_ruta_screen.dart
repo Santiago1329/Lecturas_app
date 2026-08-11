@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/database.dart';
+import '../data/sync_service.dart';
 import 'lectura_form_screen.dart';
 
 class DetalleRutaScreen extends StatelessWidget {
@@ -15,6 +15,8 @@ class DetalleRutaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final syncService = SyncService(database);
+
     return Scaffold(
       appBar: AppBar(title: Text(ruta.nombre)),
       body: StreamBuilder<List<Lectura>>(
@@ -67,36 +69,28 @@ class DetalleRutaScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: todasCompletas
                       ? () async {
-                        final supabase = Supabase.instance.client;
-
-                        // Insertamos ruta en supabase y obtenemos su ID autogenerado
-                        final rutaInsertada = await supabase
-                          .from('rutas')
-                          .insert({
-                            'nombre': ruta.nombre,
-                            'estado': 'completa',
-                          })
-                          .select()
-                          .single();
-
-                        final rutaIdEnSupabase = rutaInsertada['id'];
-
-                        // Insertamos las lecturas asociadas a esa ruta
-                        for (final lectura in lecturas) {
-                          await supabase.from('lecturas').insert({
-                            'ruta_id': rutaIdEnSupabase,
-                            'medidor': lectura.medidor,
-                            'direccion': lectura.direccion,
-                            'valor_anterior': lectura.valorAnterior,
-                            'valor_actual': lectura.valorActual,
-                            'observacion': lectura.observacion,
-                          });
-                        }
+                        // Marcar de manera local
+                        await syncService.marcarRutaCompleta(ruta.id);
 
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Ruta subida a Supabase correctamente'),
+                              content: Text('Ruta marcada como completa'),
+                            ),
+                          );
+                        }
+
+                        // Intenta sincronizar (si falla no rompe nada)
+                        final sincronizado = await syncService.sincronizarPendientes();
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                sincronizado
+                                  ? 'Ruta sincronizada con exito'
+                                  : 'Sin conexion: se sincronizara mas tarde',
+                              ),
                             ),
                           );
                         }
