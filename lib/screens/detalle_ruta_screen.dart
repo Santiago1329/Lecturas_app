@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/database.dart';
 import 'lectura_form_screen.dart';
 
@@ -65,12 +66,40 @@ class DetalleRutaScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: todasCompletas
-                      ? () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Ruta marcada como completa(simulado)'),
-                          ),
-                        );
+                      ? () async {
+                        final supabase = Supabase.instance.client;
+
+                        // Insertamos ruta en supabase y obtenemos su ID autogenerado
+                        final rutaInsertada = await supabase
+                          .from('rutas')
+                          .insert({
+                            'nombre': ruta.nombre,
+                            'estado': 'completa',
+                          })
+                          .select()
+                          .single();
+
+                        final rutaIdEnSupabase = rutaInsertada['id'];
+
+                        // Insertamos las lecturas asociadas a esa ruta
+                        for (final lectura in lecturas) {
+                          await supabase.from('lecturas').insert({
+                            'ruta_id': rutaIdEnSupabase,
+                            'medidor': lectura.medidor,
+                            'direccion': lectura.direccion,
+                            'valor_anterior': lectura.valorAnterior,
+                            'valor_actual': lectura.valorActual,
+                            'observacion': lectura.observacion,
+                          });
+                        }
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Ruta subida a Supabase correctamente'),
+                            ),
+                          );
+                        }
                       }
                       : null,
                     child: const Text('Marcar ruta como completa'),
