@@ -9,18 +9,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (Migrator m) async {
-      // Dispositivo nuevo: crea todas las tablas
-      await m.createAll();
-    },
+    onCreate: (Migrator m) => m.createAll(),
     onUpgrade: (Migrator m, int from, int to) async {
-      // Ya existe la BD, se agrega la tabla faltante
-      if (from < 2) {
-        await m.createTable(lecturas);
+      if (from < 3) {
+        await m.addColumn(rutas, rutas.estado);
+        await m.addColumn(rutas, rutas.remoteId);
+        await m.addColumn(lecturas, lecturas.sincronizada);
       }
     },
   );
