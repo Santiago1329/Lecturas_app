@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:drift/drift.dart' show Value;
 import '../data/database.dart';
+import '../data/sync_service.dart';
 import 'detalle_ruta_screen.dart';
 
 class RutasListScreen extends StatefulWidget {
@@ -12,51 +12,11 @@ class RutasListScreen extends StatefulWidget {
 }
 
 class _RutasListScreenState extends State<RutasListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _sembrarDatosSiEstaVacio();
-  }
-
-  Future<void> _sembrarDatosSiEstaVacio() async {
-    final existentes = await widget.database.select(widget.database.rutas).get();
-    if (existentes.isEmpty) {
-      final rutaId = await widget.database.into(widget.database.rutas).insert(
-            RutasCompanion(nombre: Value('Ruta Centro')),
-          );
-      await widget.database.into(widget.database.lecturas).insert(
-            LecturasCompanion(
-              rutaId: Value(rutaId),
-              medidor: Value('M-001'),
-              direccion: Value('Calle 10 #5-20'),
-              valorAnterior: Value(1200),
-            ),
-          );
-      await widget.database.into(widget.database.lecturas).insert(
-            LecturasCompanion(
-              rutaId: Value(rutaId),
-              medidor: Value('M-002'),
-              direccion: Value('Calle 10 #5-25'),
-              valorAnterior: Value(950),
-            ),
-          );
-
-      final rutaId2 = await widget.database.into(widget.database.rutas).insert(
-            RutasCompanion(nombre: Value('Ruta Norte')),
-          );
-      await widget.database.into(widget.database.lecturas).insert(
-            LecturasCompanion(
-              rutaId: Value(rutaId2),
-              medidor: Value('M-101'),
-              direccion: Value('Cra 45 #12-08'),
-              valorAnterior: Value(430),
-            ),
-          );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final syncService = SyncService(widget.database);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Mis Rutas')),
       body: StreamBuilder<List<Ruta>>(
@@ -67,6 +27,12 @@ class _RutasListScreenState extends State<RutasListScreen> {
           }
 
           final rutas = snapshot.data!;
+
+          if (rutas.isEmpty) {
+            return const Center(
+              child: Text('No tienes rutas descargadas todavia'),
+            );
+          }
 
           return ListView.builder(
             itemCount: rutas.length,
@@ -91,6 +57,26 @@ class _RutasListScreenState extends State<RutasListScreen> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final huboDescarga =
+            await syncService.descargarRutaAsignada('lector_prueba_1');
+          
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  huboDescarga
+                    ? 'Ruta nueva descargada'
+                    : 'No hay rutas nuevas o no hay conexion',
+                ),
+              ),
+            );
+          }
+        }, 
+        label: const Text('Descargar ruta'),
+        icon: const Icon(Icons.download),
       ),
     );
   }
