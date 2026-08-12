@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'data/database.dart';
+import 'data/sync_service.dart';
 import 'screens/rutas_list_screen.dart';
 
 Future<void> main() async {
@@ -14,7 +15,10 @@ Future<void> main() async {
     publishableKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
-  runApp(MyApp(database: AppDatabase()));
+  final database = AppDatabase();
+  SyncService(database).escucharConectividad();
+
+  runApp(MyApp(database: database));
 }
 
 class MyApp extends StatelessWidget {
