@@ -56,13 +56,13 @@ class _LecturaFormScreenState extends State<LecturaFormScreen> {
         ),
       );
 
-    if (context.mounted) {
+    if (mounted) {
       Navigator.pop(context);
     }
   }
 
   @override
-  Widget build(BuildContext coontext) {
+  Widget build(BuildContext context) {
     final lectura = widget.lectura;
 
     return Scaffold(

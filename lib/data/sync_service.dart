@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'database.dart';
 import 'package:drift/drift.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class SyncService {
   final AppDatabase database;
@@ -63,7 +64,6 @@ class SyncService {
       
       return true;
     } catch (e) {
-      print('Error al descargar: $e');
       return false;
     }
   }
@@ -126,5 +126,14 @@ class SyncService {
       // Sin conexion o fallo en la red
       return false;
     }
-  } 
+  }
+
+  void escucharConectividad() {
+    Connectivity().onConnectivityChanged.listen((results) {
+      final hayConexion = results.any((r) => r != ConnectivityResult.none);
+      if (hayConexion) {
+        sincronizarPendientes();
+      }
+    });
+  }
 }
