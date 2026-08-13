@@ -51,7 +51,7 @@ class SyncService {
             rutaId: rutaLocalId, 
             medidor: medidor['medidor'], 
             direccion: medidor['direccion'], 
-            valorAnterior: (medidor['valorAnterior'] as num).toDouble(),
+            valorAnterior: (medidor['valor_anterior'] as num).toDouble(),
           ),
         );
       }
