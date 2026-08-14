@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'data/database.dart';
 import 'data/sync_service.dart';
 import 'screens/rutas_list_screen.dart';
+import 'screens/pin_login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +28,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sesionActiva = Supabase.instance.client.auth.currentSession != null;
+
     return MaterialApp(
       title: 'Rutas Demo',
-      home: RutasListScreen(database: database),
+      home: sesionActiva
+        ? RutasListScreen(database: database)
+        : PinLoginScreen(database: database),
     );
   }
 }

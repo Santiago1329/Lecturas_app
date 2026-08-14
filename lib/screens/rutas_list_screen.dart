@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/database.dart';
 import '../data/sync_service.dart';
 import 'detalle_ruta_screen.dart';
@@ -60,8 +61,8 @@ class _RutasListScreenState extends State<RutasListScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          final huboDescarga =
-            await syncService.descargarRutaAsignada('lector_prueba_1');
+          final lectorId = Supabase.instance.client.auth.currentUser!.id;
+          final huboDescarga = await syncService.descargarRutaAsignada(lectorId);
           
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
