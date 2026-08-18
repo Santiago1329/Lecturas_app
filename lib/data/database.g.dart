@@ -398,6 +398,17 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteId = GeneratedColumn<String>(
+    'remote_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -408,6 +419,7 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
     valorActual,
     observacion,
     sincronizada,
+    remoteId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -486,6 +498,12 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
         ),
       );
     }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
+    }
     return context;
   }
 
@@ -527,6 +545,10 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
         DriftSqlType.bool,
         data['${effectivePrefix}sincronizada'],
       )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_id'],
+      ),
     );
   }
 
@@ -545,6 +567,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
   final double? valorActual;
   final String observacion;
   final bool sincronizada;
+  final String? remoteId;
   const Lectura({
     required this.id,
     required this.rutaId,
@@ -554,6 +577,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     this.valorActual,
     required this.observacion,
     required this.sincronizada,
+    this.remoteId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -568,6 +592,9 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     }
     map['observacion'] = Variable<String>(observacion);
     map['sincronizada'] = Variable<bool>(sincronizada);
+    if (!nullToAbsent || remoteId != null) {
+      map['remote_id'] = Variable<String>(remoteId);
+    }
     return map;
   }
 
@@ -583,6 +610,9 @@ class Lectura extends DataClass implements Insertable<Lectura> {
           : Value(valorActual),
       observacion: Value(observacion),
       sincronizada: Value(sincronizada),
+      remoteId: remoteId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteId),
     );
   }
 
@@ -600,6 +630,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
       valorActual: serializer.fromJson<double?>(json['valorActual']),
       observacion: serializer.fromJson<String>(json['observacion']),
       sincronizada: serializer.fromJson<bool>(json['sincronizada']),
+      remoteId: serializer.fromJson<String?>(json['remoteId']),
     );
   }
   @override
@@ -614,6 +645,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
       'valorActual': serializer.toJson<double?>(valorActual),
       'observacion': serializer.toJson<String>(observacion),
       'sincronizada': serializer.toJson<bool>(sincronizada),
+      'remoteId': serializer.toJson<String?>(remoteId),
     };
   }
 
@@ -626,6 +658,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     Value<double?> valorActual = const Value.absent(),
     String? observacion,
     bool? sincronizada,
+    Value<String?> remoteId = const Value.absent(),
   }) => Lectura(
     id: id ?? this.id,
     rutaId: rutaId ?? this.rutaId,
@@ -635,6 +668,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     valorActual: valorActual.present ? valorActual.value : this.valorActual,
     observacion: observacion ?? this.observacion,
     sincronizada: sincronizada ?? this.sincronizada,
+    remoteId: remoteId.present ? remoteId.value : this.remoteId,
   );
   Lectura copyWithCompanion(LecturasCompanion data) {
     return Lectura(
@@ -654,6 +688,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
       sincronizada: data.sincronizada.present
           ? data.sincronizada.value
           : this.sincronizada,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
     );
   }
 
@@ -667,7 +702,8 @@ class Lectura extends DataClass implements Insertable<Lectura> {
           ..write('valorAnterior: $valorAnterior, ')
           ..write('valorActual: $valorActual, ')
           ..write('observacion: $observacion, ')
-          ..write('sincronizada: $sincronizada')
+          ..write('sincronizada: $sincronizada, ')
+          ..write('remoteId: $remoteId')
           ..write(')'))
         .toString();
   }
@@ -682,6 +718,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     valorActual,
     observacion,
     sincronizada,
+    remoteId,
   );
   @override
   bool operator ==(Object other) =>
@@ -694,7 +731,8 @@ class Lectura extends DataClass implements Insertable<Lectura> {
           other.valorAnterior == this.valorAnterior &&
           other.valorActual == this.valorActual &&
           other.observacion == this.observacion &&
-          other.sincronizada == this.sincronizada);
+          other.sincronizada == this.sincronizada &&
+          other.remoteId == this.remoteId);
 }
 
 class LecturasCompanion extends UpdateCompanion<Lectura> {
@@ -706,6 +744,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
   final Value<double?> valorActual;
   final Value<String> observacion;
   final Value<bool> sincronizada;
+  final Value<String?> remoteId;
   const LecturasCompanion({
     this.id = const Value.absent(),
     this.rutaId = const Value.absent(),
@@ -715,6 +754,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     this.valorActual = const Value.absent(),
     this.observacion = const Value.absent(),
     this.sincronizada = const Value.absent(),
+    this.remoteId = const Value.absent(),
   });
   LecturasCompanion.insert({
     this.id = const Value.absent(),
@@ -725,6 +765,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     this.valorActual = const Value.absent(),
     this.observacion = const Value.absent(),
     this.sincronizada = const Value.absent(),
+    this.remoteId = const Value.absent(),
   }) : rutaId = Value(rutaId),
        medidor = Value(medidor),
        direccion = Value(direccion),
@@ -738,6 +779,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     Expression<double>? valorActual,
     Expression<String>? observacion,
     Expression<bool>? sincronizada,
+    Expression<String>? remoteId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -748,6 +790,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
       if (valorActual != null) 'valor_actual': valorActual,
       if (observacion != null) 'observacion': observacion,
       if (sincronizada != null) 'sincronizada': sincronizada,
+      if (remoteId != null) 'remote_id': remoteId,
     });
   }
 
@@ -760,6 +803,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     Value<double?>? valorActual,
     Value<String>? observacion,
     Value<bool>? sincronizada,
+    Value<String?>? remoteId,
   }) {
     return LecturasCompanion(
       id: id ?? this.id,
@@ -770,6 +814,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
       valorActual: valorActual ?? this.valorActual,
       observacion: observacion ?? this.observacion,
       sincronizada: sincronizada ?? this.sincronizada,
+      remoteId: remoteId ?? this.remoteId,
     );
   }
 
@@ -800,6 +845,9 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     if (sincronizada.present) {
       map['sincronizada'] = Variable<bool>(sincronizada.value);
     }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<String>(remoteId.value);
+    }
     return map;
   }
 
@@ -813,7 +861,8 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
           ..write('valorAnterior: $valorAnterior, ')
           ..write('valorActual: $valorActual, ')
           ..write('observacion: $observacion, ')
-          ..write('sincronizada: $sincronizada')
+          ..write('sincronizada: $sincronizada, ')
+          ..write('remoteId: $remoteId')
           ..write(')'))
         .toString();
   }
@@ -1107,6 +1156,7 @@ typedef $$LecturasTableCreateCompanionBuilder =
       Value<double?> valorActual,
       Value<String> observacion,
       Value<bool> sincronizada,
+      Value<String?> remoteId,
     });
 typedef $$LecturasTableUpdateCompanionBuilder =
     LecturasCompanion Function({
@@ -1118,6 +1168,7 @@ typedef $$LecturasTableUpdateCompanionBuilder =
       Value<double?> valorActual,
       Value<String> observacion,
       Value<bool> sincronizada,
+      Value<String?> remoteId,
     });
 
 final class $$LecturasTableReferences
@@ -1183,6 +1234,11 @@ class $$LecturasTableFilterComposer
 
   ColumnFilters<bool> get sincronizada => $composableBuilder(
     column: $table.sincronizada,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1254,6 +1310,11 @@ class $$LecturasTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$RutasTableOrderingComposer get rutaId {
     final $$RutasTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -1316,6 +1377,9 @@ class $$LecturasTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
   $$RutasTableAnnotationComposer get rutaId {
     final $$RutasTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -1376,6 +1440,7 @@ class $$LecturasTableTableManager
                 Value<double?> valorActual = const Value.absent(),
                 Value<String> observacion = const Value.absent(),
                 Value<bool> sincronizada = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
               }) => LecturasCompanion(
                 id: id,
                 rutaId: rutaId,
@@ -1385,6 +1450,7 @@ class $$LecturasTableTableManager
                 valorActual: valorActual,
                 observacion: observacion,
                 sincronizada: sincronizada,
+                remoteId: remoteId,
               ),
           createCompanionCallback:
               ({
@@ -1396,6 +1462,7 @@ class $$LecturasTableTableManager
                 Value<double?> valorActual = const Value.absent(),
                 Value<String> observacion = const Value.absent(),
                 Value<bool> sincronizada = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
               }) => LecturasCompanion.insert(
                 id: id,
                 rutaId: rutaId,
@@ -1405,6 +1472,7 @@ class $$LecturasTableTableManager
                 valorActual: valorActual,
                 observacion: observacion,
                 sincronizada: sincronizada,
+                remoteId: remoteId,
               ),
           withReferenceMapper: (p0) => p0
               .map(

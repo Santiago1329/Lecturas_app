@@ -16,4 +16,5 @@ class Lecturas extends Table {
   RealColumn get valorActual => real().nullable()();
   TextColumn get observacion => text().withDefault(const Constant(''))();
   BoolColumn get sincronizada => boolean().withDefault(const Constant(false))();
+  TextColumn get remoteId => text().nullable()();
 }

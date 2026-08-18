@@ -9,7 +9,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -19,6 +19,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(rutas, rutas.estado);
         await m.addColumn(rutas, rutas.remoteId);
         await m.addColumn(lecturas, lecturas.sincronizada);
+      }
+      if (from < 4) {
+        await m.addColumn(lecturas, lecturas.remoteId);
       }
     },
   );

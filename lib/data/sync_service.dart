@@ -52,6 +52,7 @@ class SyncService {
             medidor: medidor['medidor'], 
             direccion: medidor['direccion'], 
             valorAnterior: (medidor['valor_anterior'] as num).toDouble(),
+            remoteId: Value(medidor['id'].toString()),
           ),
         );
       }
@@ -77,49 +78,60 @@ class SyncService {
   // Intenta subir todas las rutas que esten completas (sin remoteId), si falla no sincroniza y deja reintentar luego
   Future<bool> sincronizarPendientes() async {
     final rutasPendientes = await (database.select(database.rutas)
-      ..where((r) => 
-        r.estado.equals('completa') & r.remoteId.isNull()))
+      ..where((r) => r.estado.equals('completa')))
       .get();
 
     if (rutasPendientes.isEmpty) return true;
 
     try {
       for (final ruta in rutasPendientes) {
-        final rutaInsertada = await _supabase
-          .from('rutas')
-          .insert({'nombre': ruta.nombre, 'estado': 'completa'})
-          .select()
-          .single();
+        String remoteId;
 
-        final remoteId = rutaInsertada['id'].toString();
+        if (ruta.remoteId != null) {
+          remoteId = ruta.remoteId!;
+          await _supabase
+            .from('rutas')
+            .update({'estado': 'completa'})
+            .eq('id', remoteId);
+        } else {
+          final rutaInsertada = await _supabase
+            .from('rutas')
+            .insert({'nombre': ruta.nombre, 'estado': 'completa'})
+            .select()
+            .single();
+          remoteId = rutaInsertada['id'].toString();
+
+          await (database.update(database.rutas)
+            ..where((r) => r.id.equals(ruta.id)))
+            .write(RutasCompanion(remoteId: Value(remoteId)));
+        }
 
         final lecturasPendientes = await (database.select(database.lecturas)
           ..where((l) =>
             l.rutaId.equals(ruta.id) & l.sincronizada.equals(false)))
           .get();
 
-        if (lecturasPendientes.isNotEmpty) {
-          await _supabase.from('lecturas').insert(
-            lecturasPendientes.map((l) => {
+        for (final l in lecturasPendientes) {
+          if (l.remoteId != null) {
+            await _supabase.from('medidores').update({
+              'valor_actual': l.valorActual,
+              'observacion': l.observacion,
+            }).eq('id', l.remoteId!);
+          } else {
+            await _supabase.from('lecturas').insert({
               'ruta_id': remoteId,
               'medidor': l.medidor,
               'direccion': l.direccion,
               'valor_anterior': l.valorAnterior,
               'valor_actual': l.valorActual,
               'observacion': l.observacion,
-            }).toList(),
-          );
-
-          for (final l in lecturasPendientes) {
-            await (database.update(database.lecturas)
-              ..where((row) => row.id.equals(l.id)))
-              .write(const LecturasCompanion(sincronizada: Value(true)));
+            });
           }
-        }
 
-        await (database.update(database.rutas)
-          ..where((r) => r.id.equals(ruta.id)))
-          .write(RutasCompanion(remoteId: Value(remoteId)));
+          await (database.update(database.lecturas)
+            ..where((row) => row.id.equals(l.id)))
+            .write(const LecturasCompanion(sincronizada: Value(true)));
+        }
       }
       return true;
     } catch (e) {
