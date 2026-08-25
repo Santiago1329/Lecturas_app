@@ -39,7 +39,7 @@ class SyncService {
       final rutaLocalId = await database.into(database.rutas).insert(
         RutasCompanion.insert(
           nombre: rutaRemota['nombre'] ?? 'Ruta sin nombre',
-          estado: const Value('pendiente'),
+          estado: const Value('en_progreso'),
           remoteId: Value(rutaRemota['id'].toString()),
         ),
       );
@@ -60,7 +60,10 @@ class SyncService {
       // Marcamos en supabase que la ruta ya se descargo
       await _supabase
         .from('rutas')
-        .update({'descargada': true})
+        .update({
+          'descargada': true,
+          'estado': 'en_progreso'
+        })
         .eq('id', rutaRemota['id']);
       
       return true;
