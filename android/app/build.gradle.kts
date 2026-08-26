@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.rutas_lectura_demo"
+    namespace = "com.espamarinilla.lecturas_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
