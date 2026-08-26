@@ -1,4 +1,4 @@
-package com.example.rutas_lectura_demo
+package com.espamarinilla.lecturas_app
 
 import io.flutter.embedding.android.FlutterActivity
 
