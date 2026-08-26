@@ -1,7 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
 import 'database.dart';
 import 'package:drift/drift.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+
+import 'package:flutter/foundation.dart';
 
 class SyncService {
   final AppDatabase database;
@@ -13,14 +16,16 @@ class SyncService {
   // Devuelve true si descargo algo y false si no habia nada o fallo por conexion
   Future<bool> descargarRutaAsignada(String lectorId) async {
     try {
-      final rutaRemota = await _supabase
+      final rutasRemotas = await _supabase
         .from('rutas')
         .select()
         .eq('lector_id', lectorId)
         .eq('descargada', false)
-        .maybeSingle();
+        .order('id')
+        .limit(1);
 
-      if (rutaRemota == null) return false;
+      if (rutasRemotas.isEmpty) return false;
+      final rutaRemota = rutasRemotas.first;
 
       // Verifica que la ruta no este localmente
       final yaExisteLocal = await (database.select(database.rutas)
@@ -41,7 +46,11 @@ class SyncService {
           nombre: rutaRemota['nombre'] ?? 'Ruta sin nombre',
           estado: const Value('en_progreso'),
           remoteId: Value(rutaRemota['id'].toString()),
-          opcionesNlLc: rutaRemota['opciones_nl_lc']
+          opcionesNlLc: Value(
+            rutaRemota['opciones_nl_lc'] != null
+              ? jsonEncode(rutaRemota['opciones_nl_lc'])
+              : null,
+          ),
         ),
       );
 
@@ -75,6 +84,7 @@ class SyncService {
       
       return true;
     } catch (e) {
+      debugPrint('Error al descargar: $e');
       return false;
     }
   }
@@ -135,6 +145,7 @@ class SyncService {
       return true;
     } catch (e) {
       // Sin conexion o fallo en la red
+      debugPrint('Error al descargar: $e');
       return false;
     }
   }
