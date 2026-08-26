@@ -3,18 +3,25 @@ import 'package:drift/drift.dart';
 class Rutas extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get nombre => text()();
-  TextColumn get estado => text().withDefault(const Constant('pendiente'))(); // pendiente | en_progreso | completa
-  TextColumn get remoteId => text().nullable()(); // id que le asigno Supabase, null hasta que se sincroniza
+  TextColumn get estado => text().withDefault(const Constant('pendiente'))();
+  TextColumn get remoteId => text().nullable()();
+  TextColumn get opcionesNlLc => text().nullable()(); // JSON string
 }
 
 class Lecturas extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get rutaId => integer().references(Rutas, #id)();
-  TextColumn get medidor => text()();
-  TextColumn get direccion => text()();
-  RealColumn get valorAnterior => real()();
-  RealColumn get valorActual => real().nullable()();
-  TextColumn get observacion => text().withDefault(const Constant(''))();
+  TextColumn get codigo => text()();
+  RealColumn get lectAnt => real().nullable()();
+  RealColumn get consAnt => real().nullable()();
+  RealColumn get lectAct => real().nullable()();
+  RealColumn get consAct => real().nullable()();
+  TextColumn get descripcion => text().nullable()();
+  RealColumn get promedio => real().nullable()();
+  TextColumn get serie => text().nullable()();
+  RealColumn get lectRev => real().nullable()();
+  TextColumn get nlLc => text().nullable()();       // editable
+  TextColumn get observacion => text().withDefault(const Constant(''))(); // editable
   BoolColumn get sincronizada => boolean().withDefault(const Constant(false))();
   TextColumn get remoteId => text().nullable()();
 }

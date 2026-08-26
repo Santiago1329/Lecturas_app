@@ -51,8 +51,25 @@ class $RutasTable extends Rutas with TableInfo<$RutasTable, Ruta> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _opcionesNlLcMeta = const VerificationMeta(
+    'opcionesNlLc',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, nombre, estado, remoteId];
+  late final GeneratedColumn<String> opcionesNlLc = GeneratedColumn<String>(
+    'opciones_nl_lc',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    nombre,
+    estado,
+    remoteId,
+    opcionesNlLc,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -88,6 +105,15 @@ class $RutasTable extends Rutas with TableInfo<$RutasTable, Ruta> {
         remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
       );
     }
+    if (data.containsKey('opciones_nl_lc')) {
+      context.handle(
+        _opcionesNlLcMeta,
+        opcionesNlLc.isAcceptableOrUnknown(
+          data['opciones_nl_lc']!,
+          _opcionesNlLcMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -113,6 +139,10 @@ class $RutasTable extends Rutas with TableInfo<$RutasTable, Ruta> {
         DriftSqlType.string,
         data['${effectivePrefix}remote_id'],
       ),
+      opcionesNlLc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}opciones_nl_lc'],
+      ),
     );
   }
 
@@ -127,11 +157,13 @@ class Ruta extends DataClass implements Insertable<Ruta> {
   final String nombre;
   final String estado;
   final String? remoteId;
+  final String? opcionesNlLc;
   const Ruta({
     required this.id,
     required this.nombre,
     required this.estado,
     this.remoteId,
+    this.opcionesNlLc,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -141,6 +173,9 @@ class Ruta extends DataClass implements Insertable<Ruta> {
     map['estado'] = Variable<String>(estado);
     if (!nullToAbsent || remoteId != null) {
       map['remote_id'] = Variable<String>(remoteId);
+    }
+    if (!nullToAbsent || opcionesNlLc != null) {
+      map['opciones_nl_lc'] = Variable<String>(opcionesNlLc);
     }
     return map;
   }
@@ -153,6 +188,9 @@ class Ruta extends DataClass implements Insertable<Ruta> {
       remoteId: remoteId == null && nullToAbsent
           ? const Value.absent()
           : Value(remoteId),
+      opcionesNlLc: opcionesNlLc == null && nullToAbsent
+          ? const Value.absent()
+          : Value(opcionesNlLc),
     );
   }
 
@@ -166,6 +204,7 @@ class Ruta extends DataClass implements Insertable<Ruta> {
       nombre: serializer.fromJson<String>(json['nombre']),
       estado: serializer.fromJson<String>(json['estado']),
       remoteId: serializer.fromJson<String?>(json['remoteId']),
+      opcionesNlLc: serializer.fromJson<String?>(json['opcionesNlLc']),
     );
   }
   @override
@@ -176,6 +215,7 @@ class Ruta extends DataClass implements Insertable<Ruta> {
       'nombre': serializer.toJson<String>(nombre),
       'estado': serializer.toJson<String>(estado),
       'remoteId': serializer.toJson<String?>(remoteId),
+      'opcionesNlLc': serializer.toJson<String?>(opcionesNlLc),
     };
   }
 
@@ -184,11 +224,13 @@ class Ruta extends DataClass implements Insertable<Ruta> {
     String? nombre,
     String? estado,
     Value<String?> remoteId = const Value.absent(),
+    Value<String?> opcionesNlLc = const Value.absent(),
   }) => Ruta(
     id: id ?? this.id,
     nombre: nombre ?? this.nombre,
     estado: estado ?? this.estado,
     remoteId: remoteId.present ? remoteId.value : this.remoteId,
+    opcionesNlLc: opcionesNlLc.present ? opcionesNlLc.value : this.opcionesNlLc,
   );
   Ruta copyWithCompanion(RutasCompanion data) {
     return Ruta(
@@ -196,6 +238,9 @@ class Ruta extends DataClass implements Insertable<Ruta> {
       nombre: data.nombre.present ? data.nombre.value : this.nombre,
       estado: data.estado.present ? data.estado.value : this.estado,
       remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
+      opcionesNlLc: data.opcionesNlLc.present
+          ? data.opcionesNlLc.value
+          : this.opcionesNlLc,
     );
   }
 
@@ -205,13 +250,14 @@ class Ruta extends DataClass implements Insertable<Ruta> {
           ..write('id: $id, ')
           ..write('nombre: $nombre, ')
           ..write('estado: $estado, ')
-          ..write('remoteId: $remoteId')
+          ..write('remoteId: $remoteId, ')
+          ..write('opcionesNlLc: $opcionesNlLc')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, nombre, estado, remoteId);
+  int get hashCode => Object.hash(id, nombre, estado, remoteId, opcionesNlLc);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -219,7 +265,8 @@ class Ruta extends DataClass implements Insertable<Ruta> {
           other.id == this.id &&
           other.nombre == this.nombre &&
           other.estado == this.estado &&
-          other.remoteId == this.remoteId);
+          other.remoteId == this.remoteId &&
+          other.opcionesNlLc == this.opcionesNlLc);
 }
 
 class RutasCompanion extends UpdateCompanion<Ruta> {
@@ -227,29 +274,34 @@ class RutasCompanion extends UpdateCompanion<Ruta> {
   final Value<String> nombre;
   final Value<String> estado;
   final Value<String?> remoteId;
+  final Value<String?> opcionesNlLc;
   const RutasCompanion({
     this.id = const Value.absent(),
     this.nombre = const Value.absent(),
     this.estado = const Value.absent(),
     this.remoteId = const Value.absent(),
+    this.opcionesNlLc = const Value.absent(),
   });
   RutasCompanion.insert({
     this.id = const Value.absent(),
     required String nombre,
     this.estado = const Value.absent(),
     this.remoteId = const Value.absent(),
+    this.opcionesNlLc = const Value.absent(),
   }) : nombre = Value(nombre);
   static Insertable<Ruta> custom({
     Expression<int>? id,
     Expression<String>? nombre,
     Expression<String>? estado,
     Expression<String>? remoteId,
+    Expression<String>? opcionesNlLc,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (nombre != null) 'nombre': nombre,
       if (estado != null) 'estado': estado,
       if (remoteId != null) 'remote_id': remoteId,
+      if (opcionesNlLc != null) 'opciones_nl_lc': opcionesNlLc,
     });
   }
 
@@ -258,12 +310,14 @@ class RutasCompanion extends UpdateCompanion<Ruta> {
     Value<String>? nombre,
     Value<String>? estado,
     Value<String?>? remoteId,
+    Value<String?>? opcionesNlLc,
   }) {
     return RutasCompanion(
       id: id ?? this.id,
       nombre: nombre ?? this.nombre,
       estado: estado ?? this.estado,
       remoteId: remoteId ?? this.remoteId,
+      opcionesNlLc: opcionesNlLc ?? this.opcionesNlLc,
     );
   }
 
@@ -282,6 +336,9 @@ class RutasCompanion extends UpdateCompanion<Ruta> {
     if (remoteId.present) {
       map['remote_id'] = Variable<String>(remoteId.value);
     }
+    if (opcionesNlLc.present) {
+      map['opciones_nl_lc'] = Variable<String>(opcionesNlLc.value);
+    }
     return map;
   }
 
@@ -291,7 +348,8 @@ class RutasCompanion extends UpdateCompanion<Ruta> {
           ..write('id: $id, ')
           ..write('nombre: $nombre, ')
           ..write('estado: $estado, ')
-          ..write('remoteId: $remoteId')
+          ..write('remoteId: $remoteId, ')
+          ..write('opcionesNlLc: $opcionesNlLc')
           ..write(')'))
         .toString();
   }
@@ -327,48 +385,108 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
       'REFERENCES rutas (id)',
     ),
   );
-  static const VerificationMeta _medidorMeta = const VerificationMeta(
-    'medidor',
-  );
+  static const VerificationMeta _codigoMeta = const VerificationMeta('codigo');
   @override
-  late final GeneratedColumn<String> medidor = GeneratedColumn<String>(
-    'medidor',
+  late final GeneratedColumn<String> codigo = GeneratedColumn<String>(
+    'codigo',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _direccionMeta = const VerificationMeta(
-    'direccion',
+  static const VerificationMeta _lectAntMeta = const VerificationMeta(
+    'lectAnt',
   );
   @override
-  late final GeneratedColumn<String> direccion = GeneratedColumn<String>(
-    'direccion',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _valorAnteriorMeta = const VerificationMeta(
-    'valorAnterior',
-  );
-  @override
-  late final GeneratedColumn<double> valorAnterior = GeneratedColumn<double>(
-    'valor_anterior',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _valorActualMeta = const VerificationMeta(
-    'valorActual',
-  );
-  @override
-  late final GeneratedColumn<double> valorActual = GeneratedColumn<double>(
-    'valor_actual',
+  late final GeneratedColumn<double> lectAnt = GeneratedColumn<double>(
+    'lect_ant',
     aliasedName,
     true,
     type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _consAntMeta = const VerificationMeta(
+    'consAnt',
+  );
+  @override
+  late final GeneratedColumn<double> consAnt = GeneratedColumn<double>(
+    'cons_ant',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lectActMeta = const VerificationMeta(
+    'lectAct',
+  );
+  @override
+  late final GeneratedColumn<double> lectAct = GeneratedColumn<double>(
+    'lect_act',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _consActMeta = const VerificationMeta(
+    'consAct',
+  );
+  @override
+  late final GeneratedColumn<double> consAct = GeneratedColumn<double>(
+    'cons_act',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _descripcionMeta = const VerificationMeta(
+    'descripcion',
+  );
+  @override
+  late final GeneratedColumn<String> descripcion = GeneratedColumn<String>(
+    'descripcion',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _promedioMeta = const VerificationMeta(
+    'promedio',
+  );
+  @override
+  late final GeneratedColumn<double> promedio = GeneratedColumn<double>(
+    'promedio',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serieMeta = const VerificationMeta('serie');
+  @override
+  late final GeneratedColumn<String> serie = GeneratedColumn<String>(
+    'serie',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lectRevMeta = const VerificationMeta(
+    'lectRev',
+  );
+  @override
+  late final GeneratedColumn<double> lectRev = GeneratedColumn<double>(
+    'lect_rev',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nlLcMeta = const VerificationMeta('nlLc');
+  @override
+  late final GeneratedColumn<String> nlLc = GeneratedColumn<String>(
+    'nl_lc',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _observacionMeta = const VerificationMeta(
@@ -413,10 +531,16 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
   List<GeneratedColumn> get $columns => [
     id,
     rutaId,
-    medidor,
-    direccion,
-    valorAnterior,
-    valorActual,
+    codigo,
+    lectAnt,
+    consAnt,
+    lectAct,
+    consAct,
+    descripcion,
+    promedio,
+    serie,
+    lectRev,
+    nlLc,
     observacion,
     sincronizada,
     remoteId,
@@ -444,40 +568,69 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
     } else if (isInserting) {
       context.missing(_rutaIdMeta);
     }
-    if (data.containsKey('medidor')) {
+    if (data.containsKey('codigo')) {
       context.handle(
-        _medidorMeta,
-        medidor.isAcceptableOrUnknown(data['medidor']!, _medidorMeta),
+        _codigoMeta,
+        codigo.isAcceptableOrUnknown(data['codigo']!, _codigoMeta),
       );
     } else if (isInserting) {
-      context.missing(_medidorMeta);
+      context.missing(_codigoMeta);
     }
-    if (data.containsKey('direccion')) {
+    if (data.containsKey('lect_ant')) {
       context.handle(
-        _direccionMeta,
-        direccion.isAcceptableOrUnknown(data['direccion']!, _direccionMeta),
+        _lectAntMeta,
+        lectAnt.isAcceptableOrUnknown(data['lect_ant']!, _lectAntMeta),
       );
-    } else if (isInserting) {
-      context.missing(_direccionMeta);
     }
-    if (data.containsKey('valor_anterior')) {
+    if (data.containsKey('cons_ant')) {
       context.handle(
-        _valorAnteriorMeta,
-        valorAnterior.isAcceptableOrUnknown(
-          data['valor_anterior']!,
-          _valorAnteriorMeta,
+        _consAntMeta,
+        consAnt.isAcceptableOrUnknown(data['cons_ant']!, _consAntMeta),
+      );
+    }
+    if (data.containsKey('lect_act')) {
+      context.handle(
+        _lectActMeta,
+        lectAct.isAcceptableOrUnknown(data['lect_act']!, _lectActMeta),
+      );
+    }
+    if (data.containsKey('cons_act')) {
+      context.handle(
+        _consActMeta,
+        consAct.isAcceptableOrUnknown(data['cons_act']!, _consActMeta),
+      );
+    }
+    if (data.containsKey('descripcion')) {
+      context.handle(
+        _descripcionMeta,
+        descripcion.isAcceptableOrUnknown(
+          data['descripcion']!,
+          _descripcionMeta,
         ),
       );
-    } else if (isInserting) {
-      context.missing(_valorAnteriorMeta);
     }
-    if (data.containsKey('valor_actual')) {
+    if (data.containsKey('promedio')) {
       context.handle(
-        _valorActualMeta,
-        valorActual.isAcceptableOrUnknown(
-          data['valor_actual']!,
-          _valorActualMeta,
-        ),
+        _promedioMeta,
+        promedio.isAcceptableOrUnknown(data['promedio']!, _promedioMeta),
+      );
+    }
+    if (data.containsKey('serie')) {
+      context.handle(
+        _serieMeta,
+        serie.isAcceptableOrUnknown(data['serie']!, _serieMeta),
+      );
+    }
+    if (data.containsKey('lect_rev')) {
+      context.handle(
+        _lectRevMeta,
+        lectRev.isAcceptableOrUnknown(data['lect_rev']!, _lectRevMeta),
+      );
+    }
+    if (data.containsKey('nl_lc')) {
+      context.handle(
+        _nlLcMeta,
+        nlLc.isAcceptableOrUnknown(data['nl_lc']!, _nlLcMeta),
       );
     }
     if (data.containsKey('observacion')) {
@@ -521,21 +674,45 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
         DriftSqlType.int,
         data['${effectivePrefix}ruta_id'],
       )!,
-      medidor: attachedDatabase.typeMapping.read(
+      codigo: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}medidor'],
+        data['${effectivePrefix}codigo'],
       )!,
-      direccion: attachedDatabase.typeMapping.read(
+      lectAnt: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lect_ant'],
+      ),
+      consAnt: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cons_ant'],
+      ),
+      lectAct: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lect_act'],
+      ),
+      consAct: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cons_act'],
+      ),
+      descripcion: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}direccion'],
-      )!,
-      valorAnterior: attachedDatabase.typeMapping.read(
+        data['${effectivePrefix}descripcion'],
+      ),
+      promedio: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}valor_anterior'],
-      )!,
-      valorActual: attachedDatabase.typeMapping.read(
+        data['${effectivePrefix}promedio'],
+      ),
+      serie: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}serie'],
+      ),
+      lectRev: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}valor_actual'],
+        data['${effectivePrefix}lect_rev'],
+      ),
+      nlLc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nl_lc'],
       ),
       observacion: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -561,20 +738,32 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
 class Lectura extends DataClass implements Insertable<Lectura> {
   final int id;
   final int rutaId;
-  final String medidor;
-  final String direccion;
-  final double valorAnterior;
-  final double? valorActual;
+  final String codigo;
+  final double? lectAnt;
+  final double? consAnt;
+  final double? lectAct;
+  final double? consAct;
+  final String? descripcion;
+  final double? promedio;
+  final String? serie;
+  final double? lectRev;
+  final String? nlLc;
   final String observacion;
   final bool sincronizada;
   final String? remoteId;
   const Lectura({
     required this.id,
     required this.rutaId,
-    required this.medidor,
-    required this.direccion,
-    required this.valorAnterior,
-    this.valorActual,
+    required this.codigo,
+    this.lectAnt,
+    this.consAnt,
+    this.lectAct,
+    this.consAct,
+    this.descripcion,
+    this.promedio,
+    this.serie,
+    this.lectRev,
+    this.nlLc,
     required this.observacion,
     required this.sincronizada,
     this.remoteId,
@@ -584,11 +773,33 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['ruta_id'] = Variable<int>(rutaId);
-    map['medidor'] = Variable<String>(medidor);
-    map['direccion'] = Variable<String>(direccion);
-    map['valor_anterior'] = Variable<double>(valorAnterior);
-    if (!nullToAbsent || valorActual != null) {
-      map['valor_actual'] = Variable<double>(valorActual);
+    map['codigo'] = Variable<String>(codigo);
+    if (!nullToAbsent || lectAnt != null) {
+      map['lect_ant'] = Variable<double>(lectAnt);
+    }
+    if (!nullToAbsent || consAnt != null) {
+      map['cons_ant'] = Variable<double>(consAnt);
+    }
+    if (!nullToAbsent || lectAct != null) {
+      map['lect_act'] = Variable<double>(lectAct);
+    }
+    if (!nullToAbsent || consAct != null) {
+      map['cons_act'] = Variable<double>(consAct);
+    }
+    if (!nullToAbsent || descripcion != null) {
+      map['descripcion'] = Variable<String>(descripcion);
+    }
+    if (!nullToAbsent || promedio != null) {
+      map['promedio'] = Variable<double>(promedio);
+    }
+    if (!nullToAbsent || serie != null) {
+      map['serie'] = Variable<String>(serie);
+    }
+    if (!nullToAbsent || lectRev != null) {
+      map['lect_rev'] = Variable<double>(lectRev);
+    }
+    if (!nullToAbsent || nlLc != null) {
+      map['nl_lc'] = Variable<String>(nlLc);
     }
     map['observacion'] = Variable<String>(observacion);
     map['sincronizada'] = Variable<bool>(sincronizada);
@@ -602,12 +813,32 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     return LecturasCompanion(
       id: Value(id),
       rutaId: Value(rutaId),
-      medidor: Value(medidor),
-      direccion: Value(direccion),
-      valorAnterior: Value(valorAnterior),
-      valorActual: valorActual == null && nullToAbsent
+      codigo: Value(codigo),
+      lectAnt: lectAnt == null && nullToAbsent
           ? const Value.absent()
-          : Value(valorActual),
+          : Value(lectAnt),
+      consAnt: consAnt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(consAnt),
+      lectAct: lectAct == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lectAct),
+      consAct: consAct == null && nullToAbsent
+          ? const Value.absent()
+          : Value(consAct),
+      descripcion: descripcion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(descripcion),
+      promedio: promedio == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promedio),
+      serie: serie == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serie),
+      lectRev: lectRev == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lectRev),
+      nlLc: nlLc == null && nullToAbsent ? const Value.absent() : Value(nlLc),
       observacion: Value(observacion),
       sincronizada: Value(sincronizada),
       remoteId: remoteId == null && nullToAbsent
@@ -624,10 +855,16 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     return Lectura(
       id: serializer.fromJson<int>(json['id']),
       rutaId: serializer.fromJson<int>(json['rutaId']),
-      medidor: serializer.fromJson<String>(json['medidor']),
-      direccion: serializer.fromJson<String>(json['direccion']),
-      valorAnterior: serializer.fromJson<double>(json['valorAnterior']),
-      valorActual: serializer.fromJson<double?>(json['valorActual']),
+      codigo: serializer.fromJson<String>(json['codigo']),
+      lectAnt: serializer.fromJson<double?>(json['lectAnt']),
+      consAnt: serializer.fromJson<double?>(json['consAnt']),
+      lectAct: serializer.fromJson<double?>(json['lectAct']),
+      consAct: serializer.fromJson<double?>(json['consAct']),
+      descripcion: serializer.fromJson<String?>(json['descripcion']),
+      promedio: serializer.fromJson<double?>(json['promedio']),
+      serie: serializer.fromJson<String?>(json['serie']),
+      lectRev: serializer.fromJson<double?>(json['lectRev']),
+      nlLc: serializer.fromJson<String?>(json['nlLc']),
       observacion: serializer.fromJson<String>(json['observacion']),
       sincronizada: serializer.fromJson<bool>(json['sincronizada']),
       remoteId: serializer.fromJson<String?>(json['remoteId']),
@@ -639,10 +876,16 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'rutaId': serializer.toJson<int>(rutaId),
-      'medidor': serializer.toJson<String>(medidor),
-      'direccion': serializer.toJson<String>(direccion),
-      'valorAnterior': serializer.toJson<double>(valorAnterior),
-      'valorActual': serializer.toJson<double?>(valorActual),
+      'codigo': serializer.toJson<String>(codigo),
+      'lectAnt': serializer.toJson<double?>(lectAnt),
+      'consAnt': serializer.toJson<double?>(consAnt),
+      'lectAct': serializer.toJson<double?>(lectAct),
+      'consAct': serializer.toJson<double?>(consAct),
+      'descripcion': serializer.toJson<String?>(descripcion),
+      'promedio': serializer.toJson<double?>(promedio),
+      'serie': serializer.toJson<String?>(serie),
+      'lectRev': serializer.toJson<double?>(lectRev),
+      'nlLc': serializer.toJson<String?>(nlLc),
       'observacion': serializer.toJson<String>(observacion),
       'sincronizada': serializer.toJson<bool>(sincronizada),
       'remoteId': serializer.toJson<String?>(remoteId),
@@ -652,20 +895,32 @@ class Lectura extends DataClass implements Insertable<Lectura> {
   Lectura copyWith({
     int? id,
     int? rutaId,
-    String? medidor,
-    String? direccion,
-    double? valorAnterior,
-    Value<double?> valorActual = const Value.absent(),
+    String? codigo,
+    Value<double?> lectAnt = const Value.absent(),
+    Value<double?> consAnt = const Value.absent(),
+    Value<double?> lectAct = const Value.absent(),
+    Value<double?> consAct = const Value.absent(),
+    Value<String?> descripcion = const Value.absent(),
+    Value<double?> promedio = const Value.absent(),
+    Value<String?> serie = const Value.absent(),
+    Value<double?> lectRev = const Value.absent(),
+    Value<String?> nlLc = const Value.absent(),
     String? observacion,
     bool? sincronizada,
     Value<String?> remoteId = const Value.absent(),
   }) => Lectura(
     id: id ?? this.id,
     rutaId: rutaId ?? this.rutaId,
-    medidor: medidor ?? this.medidor,
-    direccion: direccion ?? this.direccion,
-    valorAnterior: valorAnterior ?? this.valorAnterior,
-    valorActual: valorActual.present ? valorActual.value : this.valorActual,
+    codigo: codigo ?? this.codigo,
+    lectAnt: lectAnt.present ? lectAnt.value : this.lectAnt,
+    consAnt: consAnt.present ? consAnt.value : this.consAnt,
+    lectAct: lectAct.present ? lectAct.value : this.lectAct,
+    consAct: consAct.present ? consAct.value : this.consAct,
+    descripcion: descripcion.present ? descripcion.value : this.descripcion,
+    promedio: promedio.present ? promedio.value : this.promedio,
+    serie: serie.present ? serie.value : this.serie,
+    lectRev: lectRev.present ? lectRev.value : this.lectRev,
+    nlLc: nlLc.present ? nlLc.value : this.nlLc,
     observacion: observacion ?? this.observacion,
     sincronizada: sincronizada ?? this.sincronizada,
     remoteId: remoteId.present ? remoteId.value : this.remoteId,
@@ -674,14 +929,18 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     return Lectura(
       id: data.id.present ? data.id.value : this.id,
       rutaId: data.rutaId.present ? data.rutaId.value : this.rutaId,
-      medidor: data.medidor.present ? data.medidor.value : this.medidor,
-      direccion: data.direccion.present ? data.direccion.value : this.direccion,
-      valorAnterior: data.valorAnterior.present
-          ? data.valorAnterior.value
-          : this.valorAnterior,
-      valorActual: data.valorActual.present
-          ? data.valorActual.value
-          : this.valorActual,
+      codigo: data.codigo.present ? data.codigo.value : this.codigo,
+      lectAnt: data.lectAnt.present ? data.lectAnt.value : this.lectAnt,
+      consAnt: data.consAnt.present ? data.consAnt.value : this.consAnt,
+      lectAct: data.lectAct.present ? data.lectAct.value : this.lectAct,
+      consAct: data.consAct.present ? data.consAct.value : this.consAct,
+      descripcion: data.descripcion.present
+          ? data.descripcion.value
+          : this.descripcion,
+      promedio: data.promedio.present ? data.promedio.value : this.promedio,
+      serie: data.serie.present ? data.serie.value : this.serie,
+      lectRev: data.lectRev.present ? data.lectRev.value : this.lectRev,
+      nlLc: data.nlLc.present ? data.nlLc.value : this.nlLc,
       observacion: data.observacion.present
           ? data.observacion.value
           : this.observacion,
@@ -697,10 +956,16 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     return (StringBuffer('Lectura(')
           ..write('id: $id, ')
           ..write('rutaId: $rutaId, ')
-          ..write('medidor: $medidor, ')
-          ..write('direccion: $direccion, ')
-          ..write('valorAnterior: $valorAnterior, ')
-          ..write('valorActual: $valorActual, ')
+          ..write('codigo: $codigo, ')
+          ..write('lectAnt: $lectAnt, ')
+          ..write('consAnt: $consAnt, ')
+          ..write('lectAct: $lectAct, ')
+          ..write('consAct: $consAct, ')
+          ..write('descripcion: $descripcion, ')
+          ..write('promedio: $promedio, ')
+          ..write('serie: $serie, ')
+          ..write('lectRev: $lectRev, ')
+          ..write('nlLc: $nlLc, ')
           ..write('observacion: $observacion, ')
           ..write('sincronizada: $sincronizada, ')
           ..write('remoteId: $remoteId')
@@ -712,10 +977,16 @@ class Lectura extends DataClass implements Insertable<Lectura> {
   int get hashCode => Object.hash(
     id,
     rutaId,
-    medidor,
-    direccion,
-    valorAnterior,
-    valorActual,
+    codigo,
+    lectAnt,
+    consAnt,
+    lectAct,
+    consAct,
+    descripcion,
+    promedio,
+    serie,
+    lectRev,
+    nlLc,
     observacion,
     sincronizada,
     remoteId,
@@ -726,10 +997,16 @@ class Lectura extends DataClass implements Insertable<Lectura> {
       (other is Lectura &&
           other.id == this.id &&
           other.rutaId == this.rutaId &&
-          other.medidor == this.medidor &&
-          other.direccion == this.direccion &&
-          other.valorAnterior == this.valorAnterior &&
-          other.valorActual == this.valorActual &&
+          other.codigo == this.codigo &&
+          other.lectAnt == this.lectAnt &&
+          other.consAnt == this.consAnt &&
+          other.lectAct == this.lectAct &&
+          other.consAct == this.consAct &&
+          other.descripcion == this.descripcion &&
+          other.promedio == this.promedio &&
+          other.serie == this.serie &&
+          other.lectRev == this.lectRev &&
+          other.nlLc == this.nlLc &&
           other.observacion == this.observacion &&
           other.sincronizada == this.sincronizada &&
           other.remoteId == this.remoteId);
@@ -738,20 +1015,32 @@ class Lectura extends DataClass implements Insertable<Lectura> {
 class LecturasCompanion extends UpdateCompanion<Lectura> {
   final Value<int> id;
   final Value<int> rutaId;
-  final Value<String> medidor;
-  final Value<String> direccion;
-  final Value<double> valorAnterior;
-  final Value<double?> valorActual;
+  final Value<String> codigo;
+  final Value<double?> lectAnt;
+  final Value<double?> consAnt;
+  final Value<double?> lectAct;
+  final Value<double?> consAct;
+  final Value<String?> descripcion;
+  final Value<double?> promedio;
+  final Value<String?> serie;
+  final Value<double?> lectRev;
+  final Value<String?> nlLc;
   final Value<String> observacion;
   final Value<bool> sincronizada;
   final Value<String?> remoteId;
   const LecturasCompanion({
     this.id = const Value.absent(),
     this.rutaId = const Value.absent(),
-    this.medidor = const Value.absent(),
-    this.direccion = const Value.absent(),
-    this.valorAnterior = const Value.absent(),
-    this.valorActual = const Value.absent(),
+    this.codigo = const Value.absent(),
+    this.lectAnt = const Value.absent(),
+    this.consAnt = const Value.absent(),
+    this.lectAct = const Value.absent(),
+    this.consAct = const Value.absent(),
+    this.descripcion = const Value.absent(),
+    this.promedio = const Value.absent(),
+    this.serie = const Value.absent(),
+    this.lectRev = const Value.absent(),
+    this.nlLc = const Value.absent(),
     this.observacion = const Value.absent(),
     this.sincronizada = const Value.absent(),
     this.remoteId = const Value.absent(),
@@ -759,24 +1048,34 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
   LecturasCompanion.insert({
     this.id = const Value.absent(),
     required int rutaId,
-    required String medidor,
-    required String direccion,
-    required double valorAnterior,
-    this.valorActual = const Value.absent(),
+    required String codigo,
+    this.lectAnt = const Value.absent(),
+    this.consAnt = const Value.absent(),
+    this.lectAct = const Value.absent(),
+    this.consAct = const Value.absent(),
+    this.descripcion = const Value.absent(),
+    this.promedio = const Value.absent(),
+    this.serie = const Value.absent(),
+    this.lectRev = const Value.absent(),
+    this.nlLc = const Value.absent(),
     this.observacion = const Value.absent(),
     this.sincronizada = const Value.absent(),
     this.remoteId = const Value.absent(),
   }) : rutaId = Value(rutaId),
-       medidor = Value(medidor),
-       direccion = Value(direccion),
-       valorAnterior = Value(valorAnterior);
+       codigo = Value(codigo);
   static Insertable<Lectura> custom({
     Expression<int>? id,
     Expression<int>? rutaId,
-    Expression<String>? medidor,
-    Expression<String>? direccion,
-    Expression<double>? valorAnterior,
-    Expression<double>? valorActual,
+    Expression<String>? codigo,
+    Expression<double>? lectAnt,
+    Expression<double>? consAnt,
+    Expression<double>? lectAct,
+    Expression<double>? consAct,
+    Expression<String>? descripcion,
+    Expression<double>? promedio,
+    Expression<String>? serie,
+    Expression<double>? lectRev,
+    Expression<String>? nlLc,
     Expression<String>? observacion,
     Expression<bool>? sincronizada,
     Expression<String>? remoteId,
@@ -784,10 +1083,16 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (rutaId != null) 'ruta_id': rutaId,
-      if (medidor != null) 'medidor': medidor,
-      if (direccion != null) 'direccion': direccion,
-      if (valorAnterior != null) 'valor_anterior': valorAnterior,
-      if (valorActual != null) 'valor_actual': valorActual,
+      if (codigo != null) 'codigo': codigo,
+      if (lectAnt != null) 'lect_ant': lectAnt,
+      if (consAnt != null) 'cons_ant': consAnt,
+      if (lectAct != null) 'lect_act': lectAct,
+      if (consAct != null) 'cons_act': consAct,
+      if (descripcion != null) 'descripcion': descripcion,
+      if (promedio != null) 'promedio': promedio,
+      if (serie != null) 'serie': serie,
+      if (lectRev != null) 'lect_rev': lectRev,
+      if (nlLc != null) 'nl_lc': nlLc,
       if (observacion != null) 'observacion': observacion,
       if (sincronizada != null) 'sincronizada': sincronizada,
       if (remoteId != null) 'remote_id': remoteId,
@@ -797,10 +1102,16 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
   LecturasCompanion copyWith({
     Value<int>? id,
     Value<int>? rutaId,
-    Value<String>? medidor,
-    Value<String>? direccion,
-    Value<double>? valorAnterior,
-    Value<double?>? valorActual,
+    Value<String>? codigo,
+    Value<double?>? lectAnt,
+    Value<double?>? consAnt,
+    Value<double?>? lectAct,
+    Value<double?>? consAct,
+    Value<String?>? descripcion,
+    Value<double?>? promedio,
+    Value<String?>? serie,
+    Value<double?>? lectRev,
+    Value<String?>? nlLc,
     Value<String>? observacion,
     Value<bool>? sincronizada,
     Value<String?>? remoteId,
@@ -808,10 +1119,16 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     return LecturasCompanion(
       id: id ?? this.id,
       rutaId: rutaId ?? this.rutaId,
-      medidor: medidor ?? this.medidor,
-      direccion: direccion ?? this.direccion,
-      valorAnterior: valorAnterior ?? this.valorAnterior,
-      valorActual: valorActual ?? this.valorActual,
+      codigo: codigo ?? this.codigo,
+      lectAnt: lectAnt ?? this.lectAnt,
+      consAnt: consAnt ?? this.consAnt,
+      lectAct: lectAct ?? this.lectAct,
+      consAct: consAct ?? this.consAct,
+      descripcion: descripcion ?? this.descripcion,
+      promedio: promedio ?? this.promedio,
+      serie: serie ?? this.serie,
+      lectRev: lectRev ?? this.lectRev,
+      nlLc: nlLc ?? this.nlLc,
       observacion: observacion ?? this.observacion,
       sincronizada: sincronizada ?? this.sincronizada,
       remoteId: remoteId ?? this.remoteId,
@@ -827,17 +1144,35 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     if (rutaId.present) {
       map['ruta_id'] = Variable<int>(rutaId.value);
     }
-    if (medidor.present) {
-      map['medidor'] = Variable<String>(medidor.value);
+    if (codigo.present) {
+      map['codigo'] = Variable<String>(codigo.value);
     }
-    if (direccion.present) {
-      map['direccion'] = Variable<String>(direccion.value);
+    if (lectAnt.present) {
+      map['lect_ant'] = Variable<double>(lectAnt.value);
     }
-    if (valorAnterior.present) {
-      map['valor_anterior'] = Variable<double>(valorAnterior.value);
+    if (consAnt.present) {
+      map['cons_ant'] = Variable<double>(consAnt.value);
     }
-    if (valorActual.present) {
-      map['valor_actual'] = Variable<double>(valorActual.value);
+    if (lectAct.present) {
+      map['lect_act'] = Variable<double>(lectAct.value);
+    }
+    if (consAct.present) {
+      map['cons_act'] = Variable<double>(consAct.value);
+    }
+    if (descripcion.present) {
+      map['descripcion'] = Variable<String>(descripcion.value);
+    }
+    if (promedio.present) {
+      map['promedio'] = Variable<double>(promedio.value);
+    }
+    if (serie.present) {
+      map['serie'] = Variable<String>(serie.value);
+    }
+    if (lectRev.present) {
+      map['lect_rev'] = Variable<double>(lectRev.value);
+    }
+    if (nlLc.present) {
+      map['nl_lc'] = Variable<String>(nlLc.value);
     }
     if (observacion.present) {
       map['observacion'] = Variable<String>(observacion.value);
@@ -856,10 +1191,16 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     return (StringBuffer('LecturasCompanion(')
           ..write('id: $id, ')
           ..write('rutaId: $rutaId, ')
-          ..write('medidor: $medidor, ')
-          ..write('direccion: $direccion, ')
-          ..write('valorAnterior: $valorAnterior, ')
-          ..write('valorActual: $valorActual, ')
+          ..write('codigo: $codigo, ')
+          ..write('lectAnt: $lectAnt, ')
+          ..write('consAnt: $consAnt, ')
+          ..write('lectAct: $lectAct, ')
+          ..write('consAct: $consAct, ')
+          ..write('descripcion: $descripcion, ')
+          ..write('promedio: $promedio, ')
+          ..write('serie: $serie, ')
+          ..write('lectRev: $lectRev, ')
+          ..write('nlLc: $nlLc, ')
           ..write('observacion: $observacion, ')
           ..write('sincronizada: $sincronizada, ')
           ..write('remoteId: $remoteId')
@@ -886,6 +1227,7 @@ typedef $$RutasTableCreateCompanionBuilder =
       required String nombre,
       Value<String> estado,
       Value<String?> remoteId,
+      Value<String?> opcionesNlLc,
     });
 typedef $$RutasTableUpdateCompanionBuilder =
     RutasCompanion Function({
@@ -893,6 +1235,7 @@ typedef $$RutasTableUpdateCompanionBuilder =
       Value<String> nombre,
       Value<String> estado,
       Value<String?> remoteId,
+      Value<String?> opcionesNlLc,
     });
 
 final class $$RutasTableReferences
@@ -944,6 +1287,11 @@ class $$RutasTableFilterComposer extends Composer<_$AppDatabase, $RutasTable> {
 
   ColumnFilters<String> get remoteId => $composableBuilder(
     column: $table.remoteId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get opcionesNlLc => $composableBuilder(
+    column: $table.opcionesNlLc,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1001,6 +1349,11 @@ class $$RutasTableOrderingComposer
     column: $table.remoteId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get opcionesNlLc => $composableBuilder(
+    column: $table.opcionesNlLc,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$RutasTableAnnotationComposer
@@ -1023,6 +1376,11 @@ class $$RutasTableAnnotationComposer
 
   GeneratedColumn<String> get remoteId =>
       $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
+  GeneratedColumn<String> get opcionesNlLc => $composableBuilder(
+    column: $table.opcionesNlLc,
+    builder: (column) => column,
+  );
 
   Expression<T> lecturasRefs<T extends Object>(
     Expression<T> Function($$LecturasTableAnnotationComposer a) f,
@@ -1082,11 +1440,13 @@ class $$RutasTableTableManager
                 Value<String> nombre = const Value.absent(),
                 Value<String> estado = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
+                Value<String?> opcionesNlLc = const Value.absent(),
               }) => RutasCompanion(
                 id: id,
                 nombre: nombre,
                 estado: estado,
                 remoteId: remoteId,
+                opcionesNlLc: opcionesNlLc,
               ),
           createCompanionCallback:
               ({
@@ -1094,11 +1454,13 @@ class $$RutasTableTableManager
                 required String nombre,
                 Value<String> estado = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
+                Value<String?> opcionesNlLc = const Value.absent(),
               }) => RutasCompanion.insert(
                 id: id,
                 nombre: nombre,
                 estado: estado,
                 remoteId: remoteId,
+                opcionesNlLc: opcionesNlLc,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -1150,10 +1512,16 @@ typedef $$LecturasTableCreateCompanionBuilder =
     LecturasCompanion Function({
       Value<int> id,
       required int rutaId,
-      required String medidor,
-      required String direccion,
-      required double valorAnterior,
-      Value<double?> valorActual,
+      required String codigo,
+      Value<double?> lectAnt,
+      Value<double?> consAnt,
+      Value<double?> lectAct,
+      Value<double?> consAct,
+      Value<String?> descripcion,
+      Value<double?> promedio,
+      Value<String?> serie,
+      Value<double?> lectRev,
+      Value<String?> nlLc,
       Value<String> observacion,
       Value<bool> sincronizada,
       Value<String?> remoteId,
@@ -1162,10 +1530,16 @@ typedef $$LecturasTableUpdateCompanionBuilder =
     LecturasCompanion Function({
       Value<int> id,
       Value<int> rutaId,
-      Value<String> medidor,
-      Value<String> direccion,
-      Value<double> valorAnterior,
-      Value<double?> valorActual,
+      Value<String> codigo,
+      Value<double?> lectAnt,
+      Value<double?> consAnt,
+      Value<double?> lectAct,
+      Value<double?> consAct,
+      Value<String?> descripcion,
+      Value<double?> promedio,
+      Value<String?> serie,
+      Value<double?> lectRev,
+      Value<String?> nlLc,
       Value<String> observacion,
       Value<bool> sincronizada,
       Value<String?> remoteId,
@@ -1207,23 +1581,53 @@ class $$LecturasTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get medidor => $composableBuilder(
-    column: $table.medidor,
+  ColumnFilters<String> get codigo => $composableBuilder(
+    column: $table.codigo,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get direccion => $composableBuilder(
-    column: $table.direccion,
+  ColumnFilters<double> get lectAnt => $composableBuilder(
+    column: $table.lectAnt,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get valorAnterior => $composableBuilder(
-    column: $table.valorAnterior,
+  ColumnFilters<double> get consAnt => $composableBuilder(
+    column: $table.consAnt,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get valorActual => $composableBuilder(
-    column: $table.valorActual,
+  ColumnFilters<double> get lectAct => $composableBuilder(
+    column: $table.lectAct,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get consAct => $composableBuilder(
+    column: $table.consAct,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get descripcion => $composableBuilder(
+    column: $table.descripcion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get promedio => $composableBuilder(
+    column: $table.promedio,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serie => $composableBuilder(
+    column: $table.serie,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lectRev => $composableBuilder(
+    column: $table.lectRev,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nlLc => $composableBuilder(
+    column: $table.nlLc,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1280,23 +1684,53 @@ class $$LecturasTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get medidor => $composableBuilder(
-    column: $table.medidor,
+  ColumnOrderings<String> get codigo => $composableBuilder(
+    column: $table.codigo,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get direccion => $composableBuilder(
-    column: $table.direccion,
+  ColumnOrderings<double> get lectAnt => $composableBuilder(
+    column: $table.lectAnt,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get valorAnterior => $composableBuilder(
-    column: $table.valorAnterior,
+  ColumnOrderings<double> get consAnt => $composableBuilder(
+    column: $table.consAnt,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get valorActual => $composableBuilder(
-    column: $table.valorActual,
+  ColumnOrderings<double> get lectAct => $composableBuilder(
+    column: $table.lectAct,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get consAct => $composableBuilder(
+    column: $table.consAct,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get descripcion => $composableBuilder(
+    column: $table.descripcion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get promedio => $composableBuilder(
+    column: $table.promedio,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serie => $composableBuilder(
+    column: $table.serie,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lectRev => $composableBuilder(
+    column: $table.lectRev,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nlLc => $composableBuilder(
+    column: $table.nlLc,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1351,21 +1785,37 @@ class $$LecturasTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get medidor =>
-      $composableBuilder(column: $table.medidor, builder: (column) => column);
+  GeneratedColumn<String> get codigo =>
+      $composableBuilder(column: $table.codigo, builder: (column) => column);
 
-  GeneratedColumn<String> get direccion =>
-      $composableBuilder(column: $table.direccion, builder: (column) => column);
+  GeneratedColumn<double> get lectAnt =>
+      $composableBuilder(column: $table.lectAnt, builder: (column) => column);
 
-  GeneratedColumn<double> get valorAnterior => $composableBuilder(
-    column: $table.valorAnterior,
+  GeneratedColumn<double> get consAnt =>
+      $composableBuilder(column: $table.consAnt, builder: (column) => column);
+
+  GeneratedColumn<double> get lectAct =>
+      $composableBuilder(column: $table.lectAct, builder: (column) => column);
+
+  GeneratedColumn<double> get consAct =>
+      $composableBuilder(column: $table.consAct, builder: (column) => column);
+
+  GeneratedColumn<String> get descripcion => $composableBuilder(
+    column: $table.descripcion,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get valorActual => $composableBuilder(
-    column: $table.valorActual,
-    builder: (column) => column,
-  );
+  GeneratedColumn<double> get promedio =>
+      $composableBuilder(column: $table.promedio, builder: (column) => column);
+
+  GeneratedColumn<String> get serie =>
+      $composableBuilder(column: $table.serie, builder: (column) => column);
+
+  GeneratedColumn<double> get lectRev =>
+      $composableBuilder(column: $table.lectRev, builder: (column) => column);
+
+  GeneratedColumn<String> get nlLc =>
+      $composableBuilder(column: $table.nlLc, builder: (column) => column);
 
   GeneratedColumn<String> get observacion => $composableBuilder(
     column: $table.observacion,
@@ -1434,20 +1884,32 @@ class $$LecturasTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> rutaId = const Value.absent(),
-                Value<String> medidor = const Value.absent(),
-                Value<String> direccion = const Value.absent(),
-                Value<double> valorAnterior = const Value.absent(),
-                Value<double?> valorActual = const Value.absent(),
+                Value<String> codigo = const Value.absent(),
+                Value<double?> lectAnt = const Value.absent(),
+                Value<double?> consAnt = const Value.absent(),
+                Value<double?> lectAct = const Value.absent(),
+                Value<double?> consAct = const Value.absent(),
+                Value<String?> descripcion = const Value.absent(),
+                Value<double?> promedio = const Value.absent(),
+                Value<String?> serie = const Value.absent(),
+                Value<double?> lectRev = const Value.absent(),
+                Value<String?> nlLc = const Value.absent(),
                 Value<String> observacion = const Value.absent(),
                 Value<bool> sincronizada = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
               }) => LecturasCompanion(
                 id: id,
                 rutaId: rutaId,
-                medidor: medidor,
-                direccion: direccion,
-                valorAnterior: valorAnterior,
-                valorActual: valorActual,
+                codigo: codigo,
+                lectAnt: lectAnt,
+                consAnt: consAnt,
+                lectAct: lectAct,
+                consAct: consAct,
+                descripcion: descripcion,
+                promedio: promedio,
+                serie: serie,
+                lectRev: lectRev,
+                nlLc: nlLc,
                 observacion: observacion,
                 sincronizada: sincronizada,
                 remoteId: remoteId,
@@ -1456,20 +1918,32 @@ class $$LecturasTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required int rutaId,
-                required String medidor,
-                required String direccion,
-                required double valorAnterior,
-                Value<double?> valorActual = const Value.absent(),
+                required String codigo,
+                Value<double?> lectAnt = const Value.absent(),
+                Value<double?> consAnt = const Value.absent(),
+                Value<double?> lectAct = const Value.absent(),
+                Value<double?> consAct = const Value.absent(),
+                Value<String?> descripcion = const Value.absent(),
+                Value<double?> promedio = const Value.absent(),
+                Value<String?> serie = const Value.absent(),
+                Value<double?> lectRev = const Value.absent(),
+                Value<String?> nlLc = const Value.absent(),
                 Value<String> observacion = const Value.absent(),
                 Value<bool> sincronizada = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
               }) => LecturasCompanion.insert(
                 id: id,
                 rutaId: rutaId,
-                medidor: medidor,
-                direccion: direccion,
-                valorAnterior: valorAnterior,
-                valorActual: valorActual,
+                codigo: codigo,
+                lectAnt: lectAnt,
+                consAnt: consAnt,
+                lectAct: lectAct,
+                consAct: consAct,
+                descripcion: descripcion,
+                promedio: promedio,
+                serie: serie,
+                lectRev: lectRev,
+                nlLc: nlLc,
                 observacion: observacion,
                 sincronizada: sincronizada,
                 remoteId: remoteId,

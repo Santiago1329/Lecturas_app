@@ -9,20 +9,15 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) => m.createAll(),
     onUpgrade: (Migrator m, int from, int to) async {
-      if (from < 3) {
-        await m.addColumn(rutas, rutas.estado);
-        await m.addColumn(rutas, rutas.remoteId);
-        await m.addColumn(lecturas, lecturas.sincronizada);
-      }
-      if (from < 4) {
-        await m.addColumn(lecturas, lecturas.remoteId);
-      }
+      await m.deleteTable('lecturas');
+      await m.deleteTable('rutas');
+      await m.createAll();
     },
   );
 }
