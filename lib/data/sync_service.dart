@@ -41,6 +41,7 @@ class SyncService {
           nombre: rutaRemota['nombre'] ?? 'Ruta sin nombre',
           estado: const Value('en_progreso'),
           remoteId: Value(rutaRemota['id'].toString()),
+          opcionesNlLc: rutaRemota['opciones_nl_lc']
         ),
       );
 
@@ -48,11 +49,17 @@ class SyncService {
       for (final medidor in medidoresRemotos) {
         await database.into(database.lecturas).insert(
           LecturasCompanion.insert(
-            rutaId: rutaLocalId, 
-            medidor: medidor['medidor'], 
-            direccion: medidor['direccion'], 
-            valorAnterior: (medidor['valor_anterior'] as num).toDouble(),
+            rutaId: rutaLocalId,
+            codigo: medidor['codigo'],
             remoteId: Value(medidor['id'].toString()),
+            lectAnt: Value((medidor['lect_ant'] as num?)?.toDouble()),
+            consAnt: Value((medidor['cons_ant'] as num?)?.toDouble()),
+            lectAct: Value((medidor['lect_act'] as num?)?.toDouble()),
+            consAct: Value((medidor['cons_act'] as num?)?.toDouble()),
+            descripcion: Value(medidor['descripcion'] as String?),
+            promedio: Value((medidor['promedio'] as num?)?.toDouble()),
+            serie: Value(medidor['serie'] as String?),
+            lectRev: Value((medidor['lect_rev'] as num?)?.toDouble()),
           ),
         );
       }
@@ -115,21 +122,10 @@ class SyncService {
           .get();
 
         for (final l in lecturasPendientes) {
-          if (l.remoteId != null) {
-            await _supabase.from('medidores').update({
-              'valor_actual': l.valorActual,
-              'observacion': l.observacion,
-            }).eq('id', l.remoteId!);
-          } else {
-            await _supabase.from('lecturas').insert({
-              'ruta_id': remoteId,
-              'medidor': l.medidor,
-              'direccion': l.direccion,
-              'valor_anterior': l.valorAnterior,
-              'valor_actual': l.valorActual,
-              'observacion': l.observacion,
-            });
-          }
+          await _supabase.from('medidores').update({
+            'nl_lc': l.nlLc,
+            'observacion': l.observacion,
+          }).eq('id', l.remoteId!);
 
           await (database.update(database.lecturas)
             ..where((row) => row.id.equals(l.id)))
