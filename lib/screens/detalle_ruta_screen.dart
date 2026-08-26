@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import '../data/database.dart';
 import '../data/sync_service.dart';
 import 'lectura_form_screen.dart';
@@ -29,7 +30,7 @@ class DetalleRutaScreen extends StatelessWidget {
           }
 
           final lecturas = snapshot.data!;
-          final todasCompletas = lecturas.every((l) => l.valorActual != null);
+          final todasCompletas = lecturas.every((l) => l.nlLc != null && l.nlLc!.isNotEmpty);
 
           return Column(
             children: [
@@ -38,22 +39,33 @@ class DetalleRutaScreen extends StatelessWidget {
                   itemCount: lecturas.length,
                   itemBuilder: (context, index) {
                     final lectura = lecturas[index];
-                    final completada = lectura.valorActual != null;
+                    final completada = lectura.nlLc != null;
 
                     return ListTile(
                       leading: Icon(
                         completada ? Icons.check_circle : Icons.check_circle_outlined,
                         color: completada ? Colors.green : Colors.grey,
                       ),
-                      title: Text(lectura.medidor),
-                      subtitle: Text(lectura.direccion),
+                      title: Text(lectura.codigo),
+                      // subtitle: Text(lectura.direccion),
                       onTap: () {
+                        List<String> opciones = [];
+                        if (ruta.opcionesNlLc != null && ruta.opcionesNlLc!.isNotEmpty) {
+                          try {
+                            final List<dynamic> listaJson = jsonDecode(ruta.opcionesNlLc!);
+                            opciones = listaJson.map((e) => e.toString()).toList();
+                          } catch (e) {
+                            opciones = []; // En caso de error de parseo
+                          }
+                        }
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LecturaFormScreen(
                               database: database,
                               lectura: lectura,
+                              opcionesNlLc: opciones,
                             ),
                           ),
                         );

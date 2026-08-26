@@ -5,11 +5,13 @@ import '../data/database.dart';
 class LecturaFormScreen extends StatefulWidget {
   final AppDatabase database;
   final Lectura lectura;
+  final List<String> opcionesNlLc;
 
   const LecturaFormScreen({
     super.key,
     required this.database,
     required this.lectura,
+    required this.opcionesNlLc,
   });
 
   @override
@@ -17,15 +19,13 @@ class LecturaFormScreen extends StatefulWidget {
 }
 
 class _LecturaFormScreenState extends State<LecturaFormScreen> {
-  late TextEditingController _valorController;
+  String? _opcionSeleccionada;
   late TextEditingController _observacionController;
 
   @override
   void initState() {
     super.initState();
-    _valorController = TextEditingController(
-      text: widget.lectura.valorActual?.toString() ?? '',
-    );
+    _opcionSeleccionada = widget.lectura.nlLc;
     _observacionController = TextEditingController(
       text: widget.lectura.observacion,
     );
@@ -33,16 +33,14 @@ class _LecturaFormScreenState extends State<LecturaFormScreen> {
 
   @override
   void dispose() {
-    _valorController.dispose();
     _observacionController.dispose();
     super.dispose();
   }
 
   Future<void> _guardar() async {
-    final valor = double.tryParse(_valorController.text);
-    if (valor == null) {
+    if (_opcionSeleccionada == null || _opcionSeleccionada!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa un valor numerico valido')),
+        const SnackBar(content: Text('Selecciona una opcion NL/CL')),
       );
       return;
     }
@@ -51,7 +49,7 @@ class _LecturaFormScreenState extends State<LecturaFormScreen> {
       ..where((l) => l.id.equals(widget.lectura.id)))
       .write(
         LecturasCompanion(
-          valorActual: Value(valor),
+          nlLc: Value(_opcionSeleccionada),
           observacion: Value(_observacionController.text),
         ),
       );
@@ -66,25 +64,52 @@ class _LecturaFormScreenState extends State<LecturaFormScreen> {
     final lectura = widget.lectura;
 
     return Scaffold(
-      appBar: AppBar(title: Text(lectura.medidor)),
-      body: Padding(
+      appBar: AppBar(title: Text(lectura.codigo)),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(lectura.direccion, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              lectura.descripcion ?? 'Sin descripcion',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
-            Text('Valor anterior: ${lectura.valorAnterior}'),
+            Text('Serie: ${lectura.serie ?? "Sin registro"}'),
+            const SizedBox(height: 4),
+            Text('Lectura anterior: ${lectura.lectAnt ?? "Sin registro"}'),
+            // Text('Consumo anterior: ${lectura.consAnt ?? "Sin registro"}'),
             const SizedBox(height: 16),
-            TextField(
-              controller: _valorController,
-              keyboardType: TextInputType.number,
+
+            // Select (Dropdown) de Opciones NL/LC
+            DropdownButtonFormField<String>(
+              initialValue: widget.opcionesNlLc.contains(_opcionSeleccionada)
+                  ? _opcionSeleccionada
+                  : null,
+              isExpanded: true,
               decoration: const InputDecoration(
-                labelText: 'Valor actual',
+                labelText: 'Anomalía / Novedad (NL/LC)',
                 border: OutlineInputBorder(),
               ),
+              hint: const Text('Seleccione una opción'),
+              items: widget.opcionesNlLc.map((opcion) {
+                return DropdownMenuItem<String>(
+                  value: opcion,
+                  child: Text(
+                    opcion,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              }).toList(),
+              onChanged: (nuevoValor) {
+                setState(() {
+                  _opcionSeleccionada = nuevoValor;
+                });
+              },
             ),
             const SizedBox(height: 16),
+
+            // Campo de Observación
             TextField(
               controller: _observacionController,
               maxLines: 3,
@@ -94,10 +119,12 @@ class _LecturaFormScreenState extends State<LecturaFormScreen> {
               ),
             ),
             const SizedBox(height: 24),
+
+            // Botón Guardar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _guardar, 
+                onPressed: _guardar,
                 child: const Text('Guardar'),
               ),
             ),
