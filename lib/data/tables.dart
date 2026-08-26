@@ -12,6 +12,8 @@ class Lecturas extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get rutaId => integer().references(Rutas, #id)();
   TextColumn get codigo => text()();
+  TextColumn get nombreCliente => text().nullable()();
+  TextColumn get direccion => text().nullable()();
   RealColumn get lectAnt => real().nullable()();
   RealColumn get consAnt => real().nullable()();
   RealColumn get lectAct => real().nullable()();
@@ -19,8 +21,8 @@ class Lecturas extends Table {
   TextColumn get descripcion => text().nullable()();
   RealColumn get promedio => real().nullable()();
   TextColumn get serie => text().nullable()();
-  RealColumn get lectRev => real().nullable()();
-  TextColumn get nlLc => text().nullable()();       // editable
+  RealColumn get lectRev => real().nullable()(); //editable
+  TextColumn get nlLc => text().nullable()(); // editable
   TextColumn get observacion => text().withDefault(const Constant(''))(); // editable
   BoolColumn get sincronizada => boolean().withDefault(const Constant(false))();
   TextColumn get remoteId => text().nullable()();
