@@ -60,6 +60,8 @@ class SyncService {
           LecturasCompanion.insert(
             rutaId: rutaLocalId,
             codigo: medidor['codigo'],
+            nombreCliente: Value(medidor['nombre_cliente'] as String?),
+            direccion: Value(medidor['direccion'] as String?),
             remoteId: Value(medidor['id'].toString()),
             lectAnt: Value((medidor['lect_ant'] as num?)?.toDouble()),
             consAnt: Value((medidor['cons_ant'] as num?)?.toDouble()),
@@ -133,6 +135,7 @@ class SyncService {
 
         for (final l in lecturasPendientes) {
           await _supabase.from('medidores').update({
+            'lect_rev': l.lectRev,
             'nl_lc': l.nlLc,
             'observacion': l.observacion,
           }).eq('id', l.remoteId!);

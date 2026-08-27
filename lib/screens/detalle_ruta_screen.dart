@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import '../data/database.dart';
 import '../data/sync_service.dart';
 import 'lectura_form_screen.dart';
@@ -49,23 +48,12 @@ class DetalleRutaScreen extends StatelessWidget {
                       title: Text(lectura.codigo),
                       // subtitle: Text(lectura.direccion),
                       onTap: () {
-                        List<String> opciones = [];
-                        if (ruta.opcionesNlLc != null && ruta.opcionesNlLc!.isNotEmpty) {
-                          try {
-                            final List<dynamic> listaJson = jsonDecode(ruta.opcionesNlLc!);
-                            opciones = listaJson.map((e) => e.toString()).toList();
-                          } catch (e) {
-                            opciones = []; // En caso de error de parseo
-                          }
-                        }
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LecturaFormScreen(
                               database: database,
                               lectura: lectura,
-                              opcionesNlLc: opciones,
                             ),
                           ),
                         );
