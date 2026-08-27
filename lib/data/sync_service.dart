@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:convert';
 import 'database.dart';
 import 'package:drift/drift.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -46,11 +45,6 @@ class SyncService {
           nombre: rutaRemota['nombre'] ?? 'Ruta sin nombre',
           estado: const Value('en_progreso'),
           remoteId: Value(rutaRemota['id'].toString()),
-          opcionesNlLc: Value(
-            rutaRemota['opciones_nl_lc'] != null
-              ? jsonEncode(rutaRemota['opciones_nl_lc'])
-              : null,
-          ),
         ),
       );
 
