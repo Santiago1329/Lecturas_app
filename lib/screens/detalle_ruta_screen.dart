@@ -46,7 +46,7 @@ class DetalleRutaScreen extends StatelessWidget {
                         color: completada ? Colors.green : Colors.grey,
                       ),
                       title: Text(lectura.codigo),
-                      // subtitle: Text(lectura.direccion),
+                      subtitle: Text(lectura.descripcion.toString()),
                       onTap: () {
                         Navigator.push(
                           context,
