@@ -37,7 +37,7 @@ class SyncService {
         .from('medidores')
         .select()
         .eq('ruta_id', rutaRemota['id'])
-        .order('orden_visita');
+        .order('orden_visita', ascending: true);
       
       // Se guarda la ruta localmente
       final rutaLocalId = await database.into(database.rutas).insert(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' show OrderingTerm, OrderingMode;
 import '../data/database.dart';
 import '../data/sync_service.dart';
 import 'lectura_form_screen.dart';
@@ -21,7 +22,14 @@ class DetalleRutaScreen extends StatelessWidget {
       appBar: AppBar(title: Text(ruta.nombre)),
       body: StreamBuilder<List<Lectura>>(
         stream: (database.select(database.lecturas)
-          ..where((l) => l.rutaId.equals(ruta.id)))
+          ..where((l) => l.rutaId.equals(ruta.id))
+          ..orderBy([
+            (l) => OrderingTerm(
+              expression: l.nlLc.isNull(),
+              mode: OrderingMode.desc,
+            ),
+            (l) => OrderingTerm(expression: l.id)
+          ]))
           .watch(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
