@@ -37,7 +37,7 @@ class SyncService {
         .from('medidores')
         .select()
         .eq('ruta_id', rutaRemota['id'])
-        .order('orden_visita');
+        .order('orden_visita', ascending: true);
       
       // Se guarda la ruta localmente
       final rutaLocalId = await database.into(database.rutas).insert(
@@ -50,6 +50,7 @@ class SyncService {
 
       // Se guarda cada medidor como una fila de lecturas local con valorActual vacio (para el lector)
       for (final medidor in medidoresRemotos) {
+        debugPrint('Insertando codigo=${medidor['codigo']} orden_visita=${medidor['orden_visita']}');
         await database.into(database.lecturas).insert(
           LecturasCompanion.insert(
             rutaId: rutaLocalId,
