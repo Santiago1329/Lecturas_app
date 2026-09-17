@@ -416,6 +416,17 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _usoEstratoMeta = const VerificationMeta(
+    'usoEstrato',
+  );
+  @override
+  late final GeneratedColumn<String> usoEstrato = GeneratedColumn<String>(
+    'uso_estrato',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _lectAntMeta = const VerificationMeta(
     'lectAnt',
   );
@@ -556,6 +567,7 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
     codigo,
     nombreCliente,
     direccion,
+    usoEstrato,
     lectAnt,
     consAnt,
     lectAct,
@@ -613,6 +625,12 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
       context.handle(
         _direccionMeta,
         direccion.isAcceptableOrUnknown(data['direccion']!, _direccionMeta),
+      );
+    }
+    if (data.containsKey('uso_estrato')) {
+      context.handle(
+        _usoEstratoMeta,
+        usoEstrato.isAcceptableOrUnknown(data['uso_estrato']!, _usoEstratoMeta),
       );
     }
     if (data.containsKey('lect_ant')) {
@@ -725,6 +743,10 @@ class $LecturasTable extends Lecturas with TableInfo<$LecturasTable, Lectura> {
         DriftSqlType.string,
         data['${effectivePrefix}direccion'],
       ),
+      usoEstrato: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uso_estrato'],
+      ),
       lectAnt: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}lect_ant'],
@@ -788,6 +810,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
   final String codigo;
   final String? nombreCliente;
   final String? direccion;
+  final String? usoEstrato;
   final double? lectAnt;
   final double? consAnt;
   final double? lectAct;
@@ -806,6 +829,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     required this.codigo,
     this.nombreCliente,
     this.direccion,
+    this.usoEstrato,
     this.lectAnt,
     this.consAnt,
     this.lectAct,
@@ -830,6 +854,9 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     }
     if (!nullToAbsent || direccion != null) {
       map['direccion'] = Variable<String>(direccion);
+    }
+    if (!nullToAbsent || usoEstrato != null) {
+      map['uso_estrato'] = Variable<String>(usoEstrato);
     }
     if (!nullToAbsent || lectAnt != null) {
       map['lect_ant'] = Variable<double>(lectAnt);
@@ -877,6 +904,9 @@ class Lectura extends DataClass implements Insertable<Lectura> {
       direccion: direccion == null && nullToAbsent
           ? const Value.absent()
           : Value(direccion),
+      usoEstrato: usoEstrato == null && nullToAbsent
+          ? const Value.absent()
+          : Value(usoEstrato),
       lectAnt: lectAnt == null && nullToAbsent
           ? const Value.absent()
           : Value(lectAnt),
@@ -921,6 +951,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
       codigo: serializer.fromJson<String>(json['codigo']),
       nombreCliente: serializer.fromJson<String?>(json['nombreCliente']),
       direccion: serializer.fromJson<String?>(json['direccion']),
+      usoEstrato: serializer.fromJson<String?>(json['usoEstrato']),
       lectAnt: serializer.fromJson<double?>(json['lectAnt']),
       consAnt: serializer.fromJson<double?>(json['consAnt']),
       lectAct: serializer.fromJson<double?>(json['lectAct']),
@@ -944,6 +975,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
       'codigo': serializer.toJson<String>(codigo),
       'nombreCliente': serializer.toJson<String?>(nombreCliente),
       'direccion': serializer.toJson<String?>(direccion),
+      'usoEstrato': serializer.toJson<String?>(usoEstrato),
       'lectAnt': serializer.toJson<double?>(lectAnt),
       'consAnt': serializer.toJson<double?>(consAnt),
       'lectAct': serializer.toJson<double?>(lectAct),
@@ -965,6 +997,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     String? codigo,
     Value<String?> nombreCliente = const Value.absent(),
     Value<String?> direccion = const Value.absent(),
+    Value<String?> usoEstrato = const Value.absent(),
     Value<double?> lectAnt = const Value.absent(),
     Value<double?> consAnt = const Value.absent(),
     Value<double?> lectAct = const Value.absent(),
@@ -985,6 +1018,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
         ? nombreCliente.value
         : this.nombreCliente,
     direccion: direccion.present ? direccion.value : this.direccion,
+    usoEstrato: usoEstrato.present ? usoEstrato.value : this.usoEstrato,
     lectAnt: lectAnt.present ? lectAnt.value : this.lectAnt,
     consAnt: consAnt.present ? consAnt.value : this.consAnt,
     lectAct: lectAct.present ? lectAct.value : this.lectAct,
@@ -1007,6 +1041,9 @@ class Lectura extends DataClass implements Insertable<Lectura> {
           ? data.nombreCliente.value
           : this.nombreCliente,
       direccion: data.direccion.present ? data.direccion.value : this.direccion,
+      usoEstrato: data.usoEstrato.present
+          ? data.usoEstrato.value
+          : this.usoEstrato,
       lectAnt: data.lectAnt.present ? data.lectAnt.value : this.lectAnt,
       consAnt: data.consAnt.present ? data.consAnt.value : this.consAnt,
       lectAct: data.lectAct.present ? data.lectAct.value : this.lectAct,
@@ -1036,6 +1073,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
           ..write('codigo: $codigo, ')
           ..write('nombreCliente: $nombreCliente, ')
           ..write('direccion: $direccion, ')
+          ..write('usoEstrato: $usoEstrato, ')
           ..write('lectAnt: $lectAnt, ')
           ..write('consAnt: $consAnt, ')
           ..write('lectAct: $lectAct, ')
@@ -1059,6 +1097,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
     codigo,
     nombreCliente,
     direccion,
+    usoEstrato,
     lectAnt,
     consAnt,
     lectAct,
@@ -1081,6 +1120,7 @@ class Lectura extends DataClass implements Insertable<Lectura> {
           other.codigo == this.codigo &&
           other.nombreCliente == this.nombreCliente &&
           other.direccion == this.direccion &&
+          other.usoEstrato == this.usoEstrato &&
           other.lectAnt == this.lectAnt &&
           other.consAnt == this.consAnt &&
           other.lectAct == this.lectAct &&
@@ -1101,6 +1141,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
   final Value<String> codigo;
   final Value<String?> nombreCliente;
   final Value<String?> direccion;
+  final Value<String?> usoEstrato;
   final Value<double?> lectAnt;
   final Value<double?> consAnt;
   final Value<double?> lectAct;
@@ -1119,6 +1160,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     this.codigo = const Value.absent(),
     this.nombreCliente = const Value.absent(),
     this.direccion = const Value.absent(),
+    this.usoEstrato = const Value.absent(),
     this.lectAnt = const Value.absent(),
     this.consAnt = const Value.absent(),
     this.lectAct = const Value.absent(),
@@ -1138,6 +1180,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     required String codigo,
     this.nombreCliente = const Value.absent(),
     this.direccion = const Value.absent(),
+    this.usoEstrato = const Value.absent(),
     this.lectAnt = const Value.absent(),
     this.consAnt = const Value.absent(),
     this.lectAct = const Value.absent(),
@@ -1158,6 +1201,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     Expression<String>? codigo,
     Expression<String>? nombreCliente,
     Expression<String>? direccion,
+    Expression<String>? usoEstrato,
     Expression<double>? lectAnt,
     Expression<double>? consAnt,
     Expression<double>? lectAct,
@@ -1177,6 +1221,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
       if (codigo != null) 'codigo': codigo,
       if (nombreCliente != null) 'nombre_cliente': nombreCliente,
       if (direccion != null) 'direccion': direccion,
+      if (usoEstrato != null) 'uso_estrato': usoEstrato,
       if (lectAnt != null) 'lect_ant': lectAnt,
       if (consAnt != null) 'cons_ant': consAnt,
       if (lectAct != null) 'lect_act': lectAct,
@@ -1198,6 +1243,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     Value<String>? codigo,
     Value<String?>? nombreCliente,
     Value<String?>? direccion,
+    Value<String?>? usoEstrato,
     Value<double?>? lectAnt,
     Value<double?>? consAnt,
     Value<double?>? lectAct,
@@ -1217,6 +1263,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
       codigo: codigo ?? this.codigo,
       nombreCliente: nombreCliente ?? this.nombreCliente,
       direccion: direccion ?? this.direccion,
+      usoEstrato: usoEstrato ?? this.usoEstrato,
       lectAnt: lectAnt ?? this.lectAnt,
       consAnt: consAnt ?? this.consAnt,
       lectAct: lectAct ?? this.lectAct,
@@ -1249,6 +1296,9 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
     }
     if (direccion.present) {
       map['direccion'] = Variable<String>(direccion.value);
+    }
+    if (usoEstrato.present) {
+      map['uso_estrato'] = Variable<String>(usoEstrato.value);
     }
     if (lectAnt.present) {
       map['lect_ant'] = Variable<double>(lectAnt.value);
@@ -1297,6 +1347,7 @@ class LecturasCompanion extends UpdateCompanion<Lectura> {
           ..write('codigo: $codigo, ')
           ..write('nombreCliente: $nombreCliente, ')
           ..write('direccion: $direccion, ')
+          ..write('usoEstrato: $usoEstrato, ')
           ..write('lectAnt: $lectAnt, ')
           ..write('consAnt: $consAnt, ')
           ..write('lectAct: $lectAct, ')
@@ -1620,6 +1671,7 @@ typedef $$LecturasTableCreateCompanionBuilder =
       required String codigo,
       Value<String?> nombreCliente,
       Value<String?> direccion,
+      Value<String?> usoEstrato,
       Value<double?> lectAnt,
       Value<double?> consAnt,
       Value<double?> lectAct,
@@ -1640,6 +1692,7 @@ typedef $$LecturasTableUpdateCompanionBuilder =
       Value<String> codigo,
       Value<String?> nombreCliente,
       Value<String?> direccion,
+      Value<String?> usoEstrato,
       Value<double?> lectAnt,
       Value<double?> consAnt,
       Value<double?> lectAct,
@@ -1702,6 +1755,11 @@ class $$LecturasTableFilterComposer
 
   ColumnFilters<String> get direccion => $composableBuilder(
     column: $table.direccion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get usoEstrato => $composableBuilder(
+    column: $table.usoEstrato,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1818,6 +1876,11 @@ class $$LecturasTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get usoEstrato => $composableBuilder(
+    column: $table.usoEstrato,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get lectAnt => $composableBuilder(
     column: $table.lectAnt,
     builder: (column) => ColumnOrderings(column),
@@ -1925,6 +1988,11 @@ class $$LecturasTableAnnotationComposer
   GeneratedColumn<String> get direccion =>
       $composableBuilder(column: $table.direccion, builder: (column) => column);
 
+  GeneratedColumn<String> get usoEstrato => $composableBuilder(
+    column: $table.usoEstrato,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<double> get lectAnt =>
       $composableBuilder(column: $table.lectAnt, builder: (column) => column);
 
@@ -2024,6 +2092,7 @@ class $$LecturasTableTableManager
                 Value<String> codigo = const Value.absent(),
                 Value<String?> nombreCliente = const Value.absent(),
                 Value<String?> direccion = const Value.absent(),
+                Value<String?> usoEstrato = const Value.absent(),
                 Value<double?> lectAnt = const Value.absent(),
                 Value<double?> consAnt = const Value.absent(),
                 Value<double?> lectAct = const Value.absent(),
@@ -2042,6 +2111,7 @@ class $$LecturasTableTableManager
                 codigo: codigo,
                 nombreCliente: nombreCliente,
                 direccion: direccion,
+                usoEstrato: usoEstrato,
                 lectAnt: lectAnt,
                 consAnt: consAnt,
                 lectAct: lectAct,
@@ -2062,6 +2132,7 @@ class $$LecturasTableTableManager
                 required String codigo,
                 Value<String?> nombreCliente = const Value.absent(),
                 Value<String?> direccion = const Value.absent(),
+                Value<String?> usoEstrato = const Value.absent(),
                 Value<double?> lectAnt = const Value.absent(),
                 Value<double?> consAnt = const Value.absent(),
                 Value<double?> lectAct = const Value.absent(),
@@ -2080,6 +2151,7 @@ class $$LecturasTableTableManager
                 codigo: codigo,
                 nombreCliente: nombreCliente,
                 direccion: direccion,
+                usoEstrato: usoEstrato,
                 lectAnt: lectAnt,
                 consAnt: consAnt,
                 lectAct: lectAct,

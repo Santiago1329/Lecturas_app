@@ -14,6 +14,7 @@ class Lecturas extends Table {
   TextColumn get codigo => text()();
   TextColumn get nombreCliente => text().nullable()();
   TextColumn get direccion => text().nullable()();
+  TextColumn get usoEstrato => text().nullable()();
   RealColumn get lectAnt => real().nullable()();
   RealColumn get consAnt => real().nullable()();
   RealColumn get lectAct => real().nullable()();
