@@ -71,10 +71,9 @@ class _LecturaFormScreenState extends State<LecturaFormScreen> {
           children: [
             Text('Detalles', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-            _filaDetalle('Nombre_cliente', l.nombreCliente ?? '-'),
+            _filaDetalle('Nombre cliente', l.nombreCliente ?? '-'),
             _filaDetalle('Direccion', l.direccion ?? '-'),
-            _filaDetalle('Cons. Anterior', l.consAnt?.toString() ?? '-'),
-            _filaDetalle('Cons. Actual', l.consAct?.toString() ?? '-'),
+            _filaDetalle('Uso/estrato', l.usoEstrato ?? '-'),
           ],
         ),
       )
@@ -114,13 +113,15 @@ class _LecturaFormScreenState extends State<LecturaFormScreen> {
           children: [
             _campoVisible('Lectura anterior', lectura.lectAnt?.toString() ?? '-'),
             _campoVisible('Lectura actual', lectura.lectAct?.toString() ?? '-'),
+            _campoVisible('Consumo anterior', lectura.consAnt?.toString() ?? '-'),
+            _campoVisible('Consumo actual', lectura.consAct?.toString() ?? '-'),
             _campoVisible('Descripcion', lectura.descripcion ?? '-'),
             _campoVisible('Promedio', lectura.promedio?.toString() ?? '-'),
             _campoVisible('Serie', lectura.serie ?? '-'),
 
             const Divider(height: 40, thickness: 2),
 
-            // Revsision de lectura
+            // Revision de lectura
             const Text('Lectura revisada',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),

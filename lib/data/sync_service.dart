@@ -48,15 +48,15 @@ class SyncService {
         ),
       );
 
-      // Se guarda cada medidor como una fila de lecturas local con valorActual vacio (para el lector)
+      // Se guarda cada medidor como una fila de lecturas local
       for (final medidor in medidoresRemotos) {
-        debugPrint('Insertando codigo=${medidor['codigo']} orden_visita=${medidor['orden_visita']}');
         await database.into(database.lecturas).insert(
           LecturasCompanion.insert(
             rutaId: rutaLocalId,
             codigo: medidor['codigo'],
             nombreCliente: Value(medidor['nombre_cliente'] as String?),
             direccion: Value(medidor['direccion'] as String?),
+            usoEstrato: Value(medidor['uso_estrato'] as String?),
             remoteId: Value(medidor['id'].toString()),
             lectAnt: Value((medidor['lect_ant'] as num?)?.toDouble()),
             consAnt: Value((medidor['cons_ant'] as num?)?.toDouble()),
@@ -65,7 +65,6 @@ class SyncService {
             descripcion: Value(medidor['descripcion'] as String?),
             promedio: Value((medidor['promedio'] as num?)?.toDouble()),
             serie: Value(medidor['serie'] as String?),
-            lectRev: Value((medidor['lect_rev'] as num?)?.toDouble()),
           ),
         );
       }
