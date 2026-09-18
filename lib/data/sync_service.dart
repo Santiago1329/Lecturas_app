@@ -147,11 +147,35 @@ class SyncService {
     }
   }
 
+  Future<void> limpiarRutasEliminadas() async {
+    final rutasLocales = await (database.select(database.rutas)
+      ..where((r) => r.remoteId.isNotNull()))
+      .get();
+
+    for (final ruta in rutasLocales) {
+      final existeRemota = await _supabase
+        .from('rutas')
+        .select('id')
+        .eq('id', ruta.remoteId!)
+        .maybeSingle();
+
+      if (existeRemota == null) {
+        await (database.delete(database.lecturas)
+          ..where((l) => l.rutaId.equals(ruta.id)))
+          .go();
+        await (database.delete(database.rutas)
+          ..where((r) => r.id.equals(ruta.id)))
+          .go();
+      }
+    }
+  }
+
   void escucharConectividad() {
     Connectivity().onConnectivityChanged.listen((results) {
       final hayConexion = results.any((r) => r != ConnectivityResult.none);
       if (hayConexion) {
         sincronizarPendientes();
+        limpiarRutasEliminadas();
       }
     });
   }

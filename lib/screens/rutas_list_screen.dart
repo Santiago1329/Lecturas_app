@@ -13,10 +13,18 @@ class RutasListScreen extends StatefulWidget {
 }
 
 class _RutasListScreenState extends State<RutasListScreen> {
+  late final SyncService _syncService;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncService = SyncService(widget.database);
+    _syncService.sincronizarPendientes();
+    _syncService.limpiarRutasEliminadas();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final syncService = SyncService(widget.database);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mis Rutas')),
@@ -62,8 +70,8 @@ class _RutasListScreenState extends State<RutasListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final lectorId = Supabase.instance.client.auth.currentUser!.id;
-          final huboDescarga = await syncService.descargarRutaAsignada(lectorId);
-          
+          final huboDescarga = await _syncService.descargarRutaAsignada(lectorId);
+
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -75,7 +83,7 @@ class _RutasListScreenState extends State<RutasListScreen> {
               ),
             );
           }
-        }, 
+        },
         label: const Text('Descargar ruta'),
         icon: const Icon(Icons.download),
       ),
